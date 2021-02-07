@@ -1,5 +1,5 @@
 import torch.nn as nn
-from __init__ import Conv2dBNLeaky, Route, Reorg
+from model import Conv2dBNLeaky, Route, Reorg
 
 
 class YoloV2(nn.Module):
