@@ -5,3 +5,4 @@ data
 DEV
 
 __pycache__
+*.ipynb*
