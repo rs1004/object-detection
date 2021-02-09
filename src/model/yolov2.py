@@ -1,11 +1,11 @@
 import torch.nn as nn
 import torch.nn.functional as F
-from model import Model, Conv2dBNLeaky, Route, Reorg
+from model import Model, Conv2dBNLeaky, Route, Reorg, Region
 from function import calc_iou
 
 
 class YoloV2(Model):
-    def __init__(self):
+    def __init__(self, anchors, num_classes):
         super(YoloV2, self).__init__()
 
         self.features = nn.Sequential(
@@ -47,7 +47,9 @@ class YoloV2(Model):
             Route(layers=[-1, -4]),
             Conv2dBNLeaky(c_in=1280, c_out=1024, kernel_size=3, stride=1, padding=1)
         )
-        self.detector = nn.Conv2d(in_channels=1024, out_channels=125, kernel_size=1, stride=1)
+        self.detector = nn.Conv2d(in_channels=1024, out_channels=len(anchors) * (5 + num_classes), kernel_size=1, stride=1)
+
+        self.region = Region(anchors=anchors, num_classes=num_classes)
 
         self.route_queue = {}
         for i, m in enumerate(self.features):
@@ -64,7 +66,8 @@ class YoloV2(Model):
                 x = m(xs)
             else:
                 x = m(x)
-        out = self.detector(x)
+        x = self.detector(x)
+        out = self.region(x)
         return out
 
     def loss(self, outputs, gts, masks, coefs: tuple):

@@ -53,3 +53,40 @@ class Reorg(nn.Module):
         x = x.view(b, c, hs * ws, int(h / hs), int(w / ws)).transpose(1, 2).contiguous()
         x = x.view(b, hs * ws * c, int(h / hs), int(w / ws))
         return x
+
+
+class Region(nn.Module):
+    def __init__(self, anchors, num_classes):
+        super(Region, self).__init__()
+        self.anchors = anchors
+        self.num_classes = num_classes
+
+    def forward(self, x):
+        b, _, h, w = x.shape
+
+        # (b, c, h, w) => (b, h * w * num_anchors, coord + num_classes)
+        x = x.permute(0, 2, 3, 1).contiguous().view(b, h * w * len(self.anchors), 5 + self.num_classes)
+
+        # activate
+        x[:, :, 0:2] = torch.sigmoid(x[:, :, 0:2])
+        x[:, :, 2:4] = torch.exp(x[:, :, 2:4])
+        x[:, :, 4:5] = torch.sigmoid(x[:, :, 4:5])
+        x[:, :, 5:] = torch.softmax(x[:, :, 5:], dim=2)
+
+        # restore (the following is processed only during inference)
+        cx, cy = torch.meshgrid(torch.arange(w), torch.arange(h))
+        cx = cx.t().contiguous().view(-1, 1)  # transpose because anchors to be organized in H x W order
+        cy = cy.t().contiguous().view(-1, 1)
+
+        centers = torch.cat([cx, cy], axis=1).float()
+        anchors = torch.as_tensor(self.anchors)
+
+        all_anchors = torch.cat([
+            centers.view(-1, 1, 2).expand(-1, len(self.anchors), 2),
+            anchors.view(1, -1, 2).expand(h * w, -1, 2)
+        ], axis=2).view(-1, 4)  # (h * w * num_anchors, [cx, cy, w, h])
+
+        x[:, :, 0:2] += all_anchors[:, 0:2]
+        x[:, :, 2:4] *= all_anchors[:, 2:4]
+
+        return x
