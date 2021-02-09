@@ -1,3 +1,7 @@
+from train import Train  # noqa: F401
+from evaluate import Evaluate  # noqa: F401
+from inference import Inference  # noqa: F401
+
 from torchvision.ops import box_convert, box_iou
 
 
