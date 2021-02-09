@@ -1,7 +1,20 @@
 import torch
 import torch.nn as nn
+from abc import ABCMeta, abstractmethod
 
 
+# ---------- base model ---------- #
+class Model(nn.Module, metaclass=ABCMeta):
+    @abstractmethod
+    def loss(self):
+        pass
+
+    @abstractmethod
+    def get_paramaters(self):
+        pass
+
+
+# ---------- layers ---------- #
 class Conv2dBNLeaky(nn.Module):
     def __init__(self, c_in, c_out, kernel_size, stride, padding=0):
         super(Conv2dBNLeaky, self).__init__()
