@@ -53,10 +53,10 @@ if __name__ == '__main__':
 
     model = YoloV2()
 
-    converter = Darknet2PT('./assets/weights/yolo-voc.weights', model, './assets/weights/yolov2-voc.pt')
+    converter = Darknet2PT('./assets/weights/yolo-voc.weights', model, './assets/weights/yolov2-voc-00000.pt')
     converter.run()
 
     model = YoloV2()
-    model.load_state_dict(torch.load('./assets/weights/yolov2-voc.pt'))
+    model.load_state_dict(torch.load('./assets/weights/yolov2-voc-00000.pt'))
 
     print(model.features[0].conv.weight)
