@@ -6,3 +6,4 @@ DEV
 
 __pycache__
 *.ipynb*
+*egg-info*
