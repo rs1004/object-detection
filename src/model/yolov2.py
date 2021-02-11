@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
-from model import Model, Conv2dBNLeaky, Route, Reorg, Region
+from model.base import Model
+from model.layers import Conv2dBNLeaky, Route, Reorg, Region
 from function import calc_iou
 
 
@@ -101,7 +102,16 @@ class YoloV2(Model):
 
 if __name__ == '__main__':
     import torch
-    model = YoloV2()
+    model = YoloV2(
+        anchors=torch.tensor([
+            [1.3221, 1.73145],
+            [3.19275, 4.00944],
+            [5.05587, 8.09892],
+            [9.47112, 4.84053],
+            [11.2364, 10.0071]
+        ]),
+        num_classes=20
+    )
     print(model)
     x = torch.rand((2, 3, 416, 416))
     print(model(x))
