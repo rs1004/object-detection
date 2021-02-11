@@ -7,7 +7,7 @@ from function import calc_iou
 
 
 class PascalVOC(Dataset):
-    def __init__(self, data_list_paths, input_h, input_w, transform):
+    def __init__(self, data_list_paths, input_h, input_w, transform=None):
         super(PascalVOC, self).__init__()
         self.data_list = self._get_data_list(data_list_paths)
         self.input_h, self.input_w = input_h, input_w
@@ -68,8 +68,8 @@ class PascalVOC(Dataset):
             anno.append([label_id, coord])
 
         # transform
-        for t in self.transform:
-            image = t(image)
+        if self.transform is not None:
+            image = self.transform(image)
 
         return image, anno
 
@@ -89,17 +89,19 @@ class PascalVOC(Dataset):
 
 class PascalVOCV2(PascalVOC):
     def __init__(self, data_list_paths, input_h, input_w, transforms=None):
-        super(PascalVOCV2, self).__init__(data_list_paths, input_h, input_w)
-        self.anchors = [
+        super(PascalVOCV2, self).__init__(data_list_paths, input_h, input_w, transforms)
+        self.anchors = torch.tensor([
             [1.3221, 1.73145],
             [3.19275, 4.00944],
             [5.05587, 8.09892],
             [9.47112, 4.84053],
             [11.2364, 10.0071]
-        ]
+        ])
         self.grid_unit = 32
         self.grid_h = self.input_h // self.grid_unit
         self.grid_w = self.input_w // self.grid_unit
+
+        self.collate_fn = None
 
     def __getitem__(self, idx):
         image, anno = super(PascalVOCV2, self).__getitem__(idx)
@@ -131,18 +133,3 @@ class PascalVOCV2(PascalVOC):
         mask = mask.view(-1)
 
         return image, gt, mask
-
-    def collate_fn(self, batch):
-        images = []
-        gts = []
-        masks = []
-        for image, gt, mask in batch:
-            images.append(image)
-            gts.append(gt)
-            masks.append(mask)
-
-        images = torch.stack(images, dim=0)
-        gts = torch.stack(gts, dim=0)
-        masks = torch.stack(masks, dim=0)
-
-        return images, gts, masks
