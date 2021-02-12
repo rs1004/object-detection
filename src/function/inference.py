@@ -76,6 +76,6 @@ class Inference:
             draw.rectangle((xmin, ymin, xmax, ymax), outline=color)
             draw.text((xmin, ymin), text, fill=color, font=font)
 
-        image.save(save_dir / f'{i:05}.png')
+        image.save(save_dir / f'{i+1:05}.png')
 
         return 1
