@@ -60,7 +60,7 @@ class Region(nn.Module):
         x[:, :, 4:5] = torch.sigmoid(x[:, :, 4:5])
         x[:, :, 5:] = torch.softmax(x[:, :, 5:], dim=2)
 
-        # restore (the following is processed only during inference)
+        # restore
         cx, cy = torch.meshgrid(torch.arange(w), torch.arange(h))
         cx = cx.t().contiguous().view(-1, 1)  # transpose because anchors to be organized in H x W order
         cy = cy.t().contiguous().view(-1, 1)
