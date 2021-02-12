@@ -63,7 +63,7 @@ class YoloV2(Model):
             if i in self.route_queue:
                 self.route_queue[i] = m(x)
             if isinstance(m, Route):
-                xs = [self.route_queue.pop(lnum + i) for lnum in m.layers]
+                xs = [self.route_queue[lnum + i] for lnum in m.layers]
                 x = m(xs)
             else:
                 x = m(x)

@@ -15,7 +15,7 @@ class Inference:
 
     def run(self):
         font = ImageFont.truetype(self.font_name, self.font_size)
-        colors = [[int(i * 255) for i in c] for c in sns.color_palette('hls', n_colors=len(self.labels))]
+        colors = [tuple([int(i * 255) for i in c]) for c in sns.color_palette('hls', n_colors=len(self.dataloader.dataset.labels))]
         result_dir = Path(self.result_dir) / 'inference'
         result_dir.mkdir(exist_ok=True, parents=True)
         num_output = min(self.num_output, len(self.dataloader))
@@ -25,7 +25,7 @@ class Inference:
 
         count = 0
         with torch.no_grad():
-            for images, _, _ in tqdm(self.dataloader, total=num_output):
+            for images, _, _ in tqdm(self.dataloader, total=num_output // self.dataloader.batch_size):
                 # to GPU device
                 images = images.to(device)
 
@@ -44,8 +44,8 @@ class Inference:
 
                     # leave valid bboxes
                     boxes = boxes[confs > self.conf_thresh]
-                    confs = confs[confs > self.conf_thresh]
                     class_ids = class_ids[confs > self.conf_thresh]
+                    confs = confs[confs > self.conf_thresh]
 
                     ids = batched_nms(boxes, confs, class_ids, iou_threshold=self.iou_thresh)
                     boxes = boxes[ids]
@@ -55,12 +55,12 @@ class Inference:
                     # draw & save
                     draw = ImageDraw.Draw(image)
                     for box, conf, class_id in zip(boxes, confs, class_ids):
-                        xmin, ymin, xmax, ymax = box.data.numpy()
+                        xmin, ymin, xmax, ymax = box.data.numpy() * 32
                         color = colors[class_id.data]
-                        label = self.labels[class_id.data]
+                        text = f'{self.dataloader.dataset.labels[class_id.data]}: {round(float(conf.data), 3)}'
 
                         draw.rectangle((xmin, ymin, xmax, ymax), outline=color)
-                        draw.text((xmin, ymin), label, fill=color, font=font)
+                        draw.text((xmin, ymin), text, fill=color, font=font)
 
                     image.save(result_dir / f'{count:05}.png')
                     count += 1

@@ -9,8 +9,12 @@ from dataset.pascalvoc import PascalVOCV2
 class DataLoader(DataLoader):
     def __init__(self, batch_size, key, is_train=True, **cfg):
         self.__dict__.update(cfg)
+        self.batch_size = batch_size
+        self.is_train = is_train
+        self.num_workers = os.cpu_count()
+
         if 'yolov2-voc' == key:
-            if is_train:
+            if self.is_train:
                 paths = [
                     Path(self.data_dir) / 'VOCdevkit/VOC2007/ImageSets/Main/trainval.txt',
                     Path(self.data_dir) / 'VOCdevkit/VOC2012/ImageSets/Main/trainval.txt'
@@ -24,18 +28,18 @@ class DataLoader(DataLoader):
                 tfs = transforms.Compose([
                     transforms.ToTensor()])
             input_h, input_w = choice(self.sizes)
-            dataset = PascalVOCV2(
+            self.dataset = PascalVOCV2(
                 data_list_paths=paths,
                 input_h=input_h,
                 input_w=input_w,
                 transforms=tfs)
 
         super(DataLoader, self).__init__(
-            dataset=dataset,
-            batch_size=batch_size,
-            shuffle=is_train,
-            num_workers=os.cpu_count(),
-            collate_fn=dataset.collate_fn
+            dataset=self.dataset,
+            batch_size=self.batch_size,
+            shuffle=self.is_train,
+            num_workers=self.num_workers,
+            collate_fn=self.dataset.collate_fn
         )
 
 
