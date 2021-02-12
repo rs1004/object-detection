@@ -1,0 +1,37 @@
+{
+    "yolov2-voc": {
+        "common": {
+            "data_dir": "/home/sato/work/yolo/data",
+            "assets_dir": "/home/sato/work/yolo/assets",
+            "log_dir": "/home/sato/work/yolo/logs",
+            "result_dir": "/home/sato/work/yolo/result"
+        },
+        "dataloader": {
+            "sizes": [[416, 416]]
+        },
+        "train": {
+            "batch_size": 32,
+            "lr": 0.001,
+            "momentum": 0.9,
+            "decay": 0.0005,
+            "steps": [
+                100,
+                200
+            ],
+            "gamma": 0.1,
+            "epochs": 100
+        },
+        "inference": {
+            "font_name": "Gargi.ttf",
+            "font_size": 15,
+            "num_output": 100,
+            "conf_thresh": 0.6,
+            "iou_thresh": 0.6
+        },
+        "evaluate": {
+            "conf_thresh": 0.6,
+            "iou_thresh": 0.6,
+            "correct_thresh": 0.5
+        }
+    }
+}
