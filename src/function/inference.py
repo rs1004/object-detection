@@ -26,7 +26,7 @@ class Inference:
 
         count = 0
         with torch.no_grad():
-            for images, _, _ in tqdm(self.dataloader, total=num_output // self.dataloader.batch_size):
+            for images, _, _ in tqdm(self.dataloader, total=len(self.dataloader)):
                 # to GPU device
                 images = images.to(device)
 
