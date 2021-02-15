@@ -50,6 +50,8 @@ if __name__ == '__main__':
     cfg['sizes'] = [[416, 416]]
     dataloader = DataLoader(32, 'yolov2-voc', is_train=True, **cfg)
 
-    for i in dataloader:
-        print(i)
+    for image, gt, mask in dataloader:
+        print(image.shape)
+        print(gt.shape)
+        print(mask.shape)
         break

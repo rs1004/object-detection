@@ -1,6 +1,6 @@
 import torch
 import seaborn as sns
-from torchvision.ops import box_convert, batched_nms
+from torchvision.ops import batched_nms
 from PIL import Image, ImageFont, ImageDraw
 from pathlib import Path
 from functools import partial
@@ -51,9 +51,9 @@ class Inference:
     def _draw_and_save(self, i, image, output, colors, save_dir):
         image = Image.fromarray((image.permute(1, 2, 0).numpy() * 255).astype('uint8'))
 
-        boxes = box_convert(output[:, :4], in_fmt='cxcywh', out_fmt='xyxy')
-        confs = output[:, 4]
+        boxes = output[:, :4]
         class_ids = output[:, 5:].max(dim=-1).indices
+        confs = output[:, 4]
 
         # leave valid bboxes
         boxes = boxes[confs > self.conf_thresh]
@@ -62,8 +62,8 @@ class Inference:
 
         ids = batched_nms(boxes, confs, class_ids, iou_threshold=self.iou_thresh)
         boxes = boxes[ids]
-        confs = confs[ids]
         class_ids = class_ids[ids]
+        confs = confs[ids]
 
         # draw & save
         draw = ImageDraw.Draw(image)

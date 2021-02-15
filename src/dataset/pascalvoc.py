@@ -1,9 +1,8 @@
 import torch
 import xml.etree.ElementTree as ET
 from torch.utils.data import Dataset
-from torchvision.ops import box_convert
+from torchvision.ops import box_convert, box_iou
 from PIL import Image
-from function import calc_iou
 
 
 class PascalVOC(Dataset):
@@ -54,7 +53,7 @@ class PascalVOC(Dataset):
 
         for obj in root.iter('object'):
             name = obj.find('name').text
-            label_id = self.labels.index(name)
+            class_id = self.labels.index(name)
 
             bbox = obj.find('bndbox')
             xmin = int(bbox.find('xmin').text) * x_scale
@@ -62,10 +61,14 @@ class PascalVOC(Dataset):
             xmax = int(bbox.find('xmax').text) * x_scale
             ymax = int(bbox.find('ymax').text) * y_scale
 
-            coord = torch.tensor([xmin, ymin, xmax, ymax])
-            coord = box_convert(coord, in_fmt='xyxy', out_fmt='cxcywh')
+            difficult = int(obj.find('difficult').text)
 
-            anno.append([label_id, coord])
+            anno.append(torch.tensor([xmin, ymin, xmax, ymax, class_id, difficult, 0]))
+
+        if len(anno) > 0:
+            anno = torch.stack(anno)
+        else:
+            anno = torch.empty(size=(0, 7))
 
         # transform
         if self.transform is not None:
@@ -106,30 +109,25 @@ class PascalVOCV2(PascalVOC):
     def __getitem__(self, idx):
         image, anno = super(PascalVOCV2, self).__getitem__(idx)
 
-        gt = torch.zeros((self.grid_h, self.grid_w, len(self.anchors), 5 + 1))
-        mask = torch.zeros((self.grid_h, self.grid_w, len(self.anchors)))
+        gt = torch.zeros((self.grid_h * self.grid_w * len(self.anchors), anno.shape[1]))
+        mask = torch.zeros((self.grid_h * self.grid_w * len(self.anchors)))
 
-        for label_id, coord in anno:
-            coord /= self.grid_unit
+        if len(anno) > 0:
+            anno[:, :4] /= self.grid_unit
+            cx, cy = torch.meshgrid(torch.arange(0.5, self.grid_w), torch.arange(0.5, self.grid_h))
+            cx = cx.t().contiguous().view(-1, 1)  # transpose because anchors to be organized in H x W order
+            cy = cy.t().contiguous().view(-1, 1)
 
-            # select anchor (an highest iou anchor is selected)
-            cx, cy, w, h = coord
+            centers = torch.cat([cx, cy], axis=1).float()
 
-            anchors = torch.cat(
-                [torch.tensor([cx, cy]).repeat(len(self.anchors), 1) // 1 + 0.5,
-                 self.anchors],
-                axis=1)
-            anchor_id = calc_iou(coord, anchors).argmax()
+            all_anchors = torch.cat([
+                centers.view(-1, 1, 2).expand(-1, len(self.anchors), 2),
+                self.anchors.view(1, -1, 2).expand(self.grid_h * self.grid_w, -1, 2)
+            ], axis=2).view(-1, 4)
+            all_anchors = box_convert(all_anchors, in_fmt='cxcywh', out_fmt='xyxy')
 
-            # set annotation
-            w_id = cx.int()
-            h_id = cy.int()
-
-            gt[h_id, w_id, anchor_id, :5] += torch.tensor([cx, cy, w, h, 1.])
-            gt[h_id, w_id, anchor_id, 5] += label_id
-            mask[h_id, w_id, anchor_id] = 1.
-
-        gt = gt.view(-1, 5 + 1)  # (h * w * num_anchors, [cx, cy, w, h, conf, class_id])
-        mask = mask.view(-1)
+            indices = box_iou(anno[:, :4], all_anchors).max(dim=1).indices
+            gt[indices] = anno
+            mask[indices] = 1.
 
         return image, gt, mask

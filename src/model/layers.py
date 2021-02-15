@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torchvision.ops import box_convert
 
 
 class Conv2dBNLeaky(nn.Module):
@@ -75,5 +76,7 @@ class Region(nn.Module):
 
         x[:, :, 0:2] += all_anchors[:, 0:2]
         x[:, :, 2:4] *= all_anchors[:, 2:4]
+
+        x[:, :, :4] = box_convert(x[:, :, :4], in_fmt='cxcywh', out_fmt='xyxy')
 
         return x
