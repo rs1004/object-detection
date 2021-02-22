@@ -51,6 +51,8 @@ class Inference:
     def _draw_and_save(self, i, image, output, colors, save_dir):
         image = Image.fromarray((image.permute(1, 2, 0).numpy() * 255).astype('uint8'))
 
+        output = output[output[:, 4].sort(descending=True).indices]
+
         boxes = output[:, :4]
         class_ids = output[:, 5:].max(dim=-1).indices
         confs = output[:, 4]
