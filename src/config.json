@@ -24,14 +24,12 @@
         "inference": {
             "font_name": "Gargi.ttf",
             "font_size": 15,
-            "num_output": 100,
-            "conf_thresh": 0.6,
-            "iou_thresh": 0.6
+            "num_output": 10,
+            "conf_thresh": 0.3,
+            "nms_thresh": 0.6
         },
         "evaluate": {
-            "conf_thresh": 0.6,
-            "iou_thresh": 0.6,
-            "correct_thresh": 0.5,
+            "nms_thresh": 0.6,
             "mpolicy": "greedy"
         }
     }

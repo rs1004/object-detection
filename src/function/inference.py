@@ -62,7 +62,7 @@ class Inference:
         class_ids = class_ids[confs > self.conf_thresh]
         confs = confs[confs > self.conf_thresh]
 
-        ids = batched_nms(boxes, confs, class_ids, iou_threshold=self.iou_thresh)
+        ids = batched_nms(boxes, confs, class_ids, iou_threshold=self.nms_thresh)
         boxes = boxes[ids]
         class_ids = class_ids[ids]
         confs = confs[ids]

@@ -29,7 +29,7 @@ class Evaluate:
         self.model.to(device)
 
         labels = self.dataloader.dataset.labels
-        metric_fn = MeanAveragePrecision(num_classes=len(labels), conf_thresh=self.conf_thresh, iou_thresh=self.iou_thresh)
+        metric_fn = MeanAveragePrecision(num_classes=len(labels), nms_thresh=self.nms_thresh)
         with torch.no_grad():
             for images, gts, masks in tqdm(self.dataloader, total=len(self.dataloader)):
                 # to GPU device
@@ -55,10 +55,9 @@ class Evaluate:
 
 
 class MeanAveragePrecision:
-    def __init__(self, num_classes, conf_thresh, iou_thresh):
+    def __init__(self, num_classes, nms_thresh):
         self.num_classes = num_classes
-        self.conf_thresh = conf_thresh
-        self.iou_thresh = iou_thresh
+        self.nms_thresh = nms_thresh
 
         self.interm = []
         self.count = []
@@ -72,11 +71,7 @@ class MeanAveragePrecision:
         gt_class_ids = gt[:, 4]
 
         # leave valid bboxes
-        boxes = boxes[confs > self.conf_thresh]
-        class_ids = class_ids[confs > self.conf_thresh]
-        confs = confs[confs > self.conf_thresh]
-
-        ids = batched_nms(boxes, confs, class_ids, iou_threshold=self.iou_thresh)
+        ids = batched_nms(boxes, confs, class_ids, iou_threshold=self.nms_thresh)
         boxes = boxes[ids]
         confs = confs[ids]
         class_ids = class_ids[ids]
