@@ -1,6 +1,7 @@
 import torch
 import json
 import numpy as np
+import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
 from torchvision.ops import batched_nms, box_iou
@@ -19,7 +20,7 @@ class Evaluate:
         save_dir.mkdir(exist_ok=True, parents=True)
 
         if self.mpolicy == 'greedy':
-            correct_thresholds = 0.5
+            correct_thresholds = [0.5]
             recall_thresholds = None
         elif self.mpolicy == 'soft':
             correct_thresholds = np.arange(0.5, 1.0, 0.05)
@@ -52,6 +53,16 @@ class Evaluate:
 
         with open(save_dir / 'evaluate.json', 'w') as f:
             json.dump(result, f, indent=4)
+
+        s_df = pd.DataFrame([[result[ct][i]['ap'] for ct in correct_thresholds] for i in range(len(labels))])
+        s_df.index = labels
+        s_df.columns = [f'ct = {ct:.02f}' for ct in correct_thresholds]
+
+        s_df.loc['AP'] = s_df.mean(axis=0)
+        s_df['mean'] = s_df.mean(axis=1)
+
+        with open(save_dir / 'summary.txt', 'w') as f:
+            f.write(s_df.applymap('{:.03f}'.format).to_markdown(tablefmt='grid'))
 
 
 class MeanAveragePrecision:
@@ -95,9 +106,6 @@ class MeanAveragePrecision:
         self.count.append(count.clone())
 
     def value(self, correct_thresholds, recall_thresholds=None, mpolicy='greedy'):
-        if isinstance(correct_thresholds, float):
-            correct_thresholds = [correct_thresholds]
-
         # shape data
         interm = torch.cat(self.interm)
         count = torch.cat(self.count)
