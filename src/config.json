@@ -31,7 +31,8 @@
         "evaluate": {
             "conf_thresh": 0.6,
             "iou_thresh": 0.6,
-            "correct_thresh": 0.5
+            "correct_thresh": 0.5,
+            "mpolicy": "greedy"
         }
     }
 }

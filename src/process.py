@@ -26,6 +26,9 @@ if __name__ == '__main__':
     with open(Path(__file__).parent / 'config.json', 'r') as f:
         cfg = json.load(f)[args.key]
 
+    cfg['common']['log_dir'] += f'/{args.key}'
+    cfg['common']['result_dir'] += f'/{args.key}'
+
     # prepare
     dataloader = DataLoader(batch_size=args.batch_size, key=args.key, is_train=args.task == 'train', **{**cfg['common'], **cfg['dataloader']})
 
