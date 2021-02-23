@@ -85,55 +85,57 @@ class MeanAveragePrecision:
         else:
             interm = torch.empty(size=(0, 3))
 
-        self.interm.append(interm.numpy().copy())
-        self.count.append(count.numpy().copy())
+        self.interm.append(interm.clone())
+        self.count.append(count.clone())
 
     def value(self, correct_thresholds, recall_thresholds=None, mpolicy='greedy'):
         if isinstance(correct_thresholds, float):
             correct_thresholds = [correct_thresholds]
 
         # shape data
-        interm = np.concatenate(self.interm)
-        count = np.concatenate(self.count)
+        interm = torch.cat(self.interm)
+        count = torch.cat(self.count)
 
-        ious, _, class_ids = interm[np.argsort(interm[:, 1])[::-1]].T
-        interm = np.stack([ious > ct for ct in correct_thresholds] + [class_ids], axis=1)
+        ious, _, class_ids = interm[interm[:, 1].argsort(descending=True)].T
+        interm = torch.stack([ious > ct for ct in correct_thresholds] + [class_ids], dim=1)
         count = Counter(count.tolist())
 
         # calculate
         result = {}
-        aps = np.empty(shape=(0, len(correct_thresholds)))
+        aps = torch.empty(size=(0, len(correct_thresholds)))
         for i in range(self.num_classes):
-            interm_ = interm[interm[:, -1] == i]
+            interm_ = interm[interm[:, -1] == i, :-1]
 
-            pres = np.vstack([
-                np.zeros((1, len(correct_thresholds))),
-                np.cumsum(interm_, axis=0) / np.arange(1, len(interm_) + 1).reshape(-1, 1),
-                np.zeros((1, len(correct_thresholds)))
-            ])
-            recs = np.vstack([
-                np.zeros((1, len(correct_thresholds))),
-                np.cumsum(interm_, axis=0) / count[i],
-                np.ones((1, len(correct_thresholds)))
-            ])
+            pres = interm_.cumsum(dim=0) / torch.arange(1, len(interm_) + 1).reshape(-1, 1)
+            recs = interm_.cumsum(dim=0) / count[i]
 
             aps_a_class = self._calc_ap(pres, recs, recall_thresholds, mpolicy)
-            for j, (ct, ap) in enumerate(zip(correct_thresholds, aps_a_class)):
+            for _, (ct, ap) in enumerate(zip(correct_thresholds, aps_a_class)):
                 if ct not in result:
                     result[ct] = {}
                 result[ct][i] = {
-                    'ap': ap,
-                    'precision': pres[:, j],
-                    'recall': recs[:, j]
+                    'ap': float(ap),
+                    'precision': pres[:, _].tolist(),
+                    'recall': recs[:, _].tolist()
                 }
-            aps = np.concatenate([aps, aps_a_class.reshape(1, -1)], axis=0)
+            aps = torch.cat([aps, aps_a_class.reshape(1, -1)])
 
-        result['mAP'] = aps.mean(axis=0).mean()
+        result['mAP'] = float(aps.mean(axis=0).mean())
 
         return result
 
     def _calc_ap(self, pres, recs, recall_thresholds, mpolicy):
         if mpolicy == 'greedy':
-            pass
+            pres = torch.vstack([
+                torch.zeros(size=(1, pres.shape[1])),
+                pres,
+                torch.zeros(size=(1, pres.shape[1]))    
+            ])
+            recs = torch.vstack([
+                torch.zeros(size=(1, recs.shape[1])),
+                recs,
+                torch.ones(size=(1, recs.shape[1]))
+            ])
+
         elif mpolicy == 'soft':
             pass
