@@ -39,7 +39,7 @@ class Train:
 
                         # forward + backward + optimize
                         outputs = self.model(images)
-                        loss = self.model.loss(outputs, gts, masks)
+                        loss = self.model.loss(outputs, gts, masks, self.coefs)
                         loss.backward()
                         optimizer.step()
                         running_loss += loss.item()

@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from model.base import Model
@@ -77,22 +78,22 @@ class YoloV2(Model):
         loss_xy = loss_wh = loss_obj = loss_noobj = loss_c = 0
 
         for i in range(b):
-            ids = torch.nonzero(masks[i]).squeeze()
-            non_ids = torch.nonzero(1 - masks[i]).squeeze()
+            ids = torch.nonzero(masks[i]).reshape(-1)
+            non_ids = torch.nonzero(1 - masks[i]).reshape(-1)
 
             # localization loss
             out_coords = box_convert(outputs[i, ids, 0:4], in_fmt='xyxy', out_fmt='cxcywh')
             gt_coords = box_convert(gts[i, ids, 0:4], in_fmt='xyxy', out_fmt='cxcywh')
-            loss_xy += F.mse_loss(out_coords[:, 0:2], gt_coords[:, 0:2], reduction='sum')
-            loss_wh += F.mse_loss(out_coords[:, 2:4].sqrt(), gt_coords[:, 2:4].sqrt(), reduction='sum')
+            loss_xy = loss_xy + F.mse_loss(out_coords[:, 0:2], gt_coords[:, 0:2], reduction='sum')
+            loss_wh = loss_wh + F.mse_loss(out_coords[:, 2:4].sqrt(), gt_coords[:, 2:4].sqrt(), reduction='sum')
 
             # confidence loss
             max_iou_i = box_iou(outputs[i, :, 0:4], gts[i, ids, 0:4]).max(dim=1).values
-            loss_obj += F.mse_loss(max_iou_i[ids], masks[i, ids], reduction='sum')
-            loss_noobj += F.mse_loss(max_iou_i[non_ids], masks[i, non_ids], reduction='sum')
+            loss_obj = loss_obj + F.mse_loss(max_iou_i[ids], masks[i, ids], reduction='sum')
+            loss_noobj = loss_noobj + F.mse_loss(max_iou_i[non_ids], masks[i, non_ids], reduction='sum')
 
             # class loss
-            loss_c += F.cross_entropy(outputs[i, ids, 5:], gts[i, ids, 4].long(), reduction='sum')
+            loss_c = loss_c + F.cross_entropy(outputs[i, ids, 5:], gts[i, ids, 4].long(), reduction='sum')
 
         # sum up
         loss = 1/b * (l_coord * (loss_xy + loss_wh) + l_obj * loss_obj + l_noobj * loss_noobj + l_class * loss_c)
@@ -103,7 +104,6 @@ class YoloV2(Model):
 
 
 if __name__ == '__main__':
-    import torch
     model = YoloV2(
         anchors=torch.tensor([
             [1.3221, 1.73145],

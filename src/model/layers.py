@@ -56,10 +56,12 @@ class Region(nn.Module):
         x = x.permute(0, 2, 3, 1).contiguous().view(b, h * w * len(self.anchors), 5 + self.num_classes)
 
         # activate
-        x[:, :, 0:2] = torch.sigmoid(x[:, :, 0:2])
-        x[:, :, 2:4] = torch.exp(x[:, :, 2:4])
-        x[:, :, 4:5] = torch.sigmoid(x[:, :, 4:5])
-        x[:, :, 5:] = torch.softmax(x[:, :, 5:], dim=2)
+        x = torch.cat([
+            torch.sigmoid(x[:, :, 0:2]),
+            torch.exp(x[:, :, 2:4]),
+            torch.sigmoid(x[:, :, 4:5]),
+            torch.softmax(x[:, :, 5:], dim=2)
+        ], dim=-1)
 
         # restore
         cx, cy = torch.meshgrid(torch.arange(w), torch.arange(h))
@@ -74,8 +76,8 @@ class Region(nn.Module):
             anchors.view(1, -1, 2).expand(h * w, -1, 2)
         ], axis=2).view(-1, 4)  # (h * w * num_anchors, [cx, cy, w, h])
 
-        x[:, :, 0:2] += all_anchors[:, 0:2]
-        x[:, :, 2:4] *= all_anchors[:, 2:4]
+        x[:, :, 0:2] = x[:, :, 0:2] + all_anchors[:, 0:2]
+        x[:, :, 2:4] = x[:, :, 2:4] * all_anchors[:, 2:4]
 
         x[:, :, :4] = box_convert(x[:, :, :4], in_fmt='cxcywh', out_fmt='xyxy')
 
