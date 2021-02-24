@@ -22,7 +22,7 @@ class Train:
         min_loss = 99999
         with SummaryWriter(log_dir=Path(self.log_dir)) as writer:
             for epoch in range(self.last_epoch, self.last_epoch + self.epochs):
-                self.dataloader.__init__()
+                self.dataloader.reset()
                 running_loss = 0.0
                 with tqdm(self.dataloader, total=len(self.dataloader)) as pbar:
                     for images, gts, masks in pbar:

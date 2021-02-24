@@ -1,19 +1,21 @@
 import os
 import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader as DL
 from random import choice
 from pathlib import Path
 from dataset.pascalvoc import PascalVOCV2
 
 
-class DataLoader(DataLoader):
+class DataLoader(DL):
     def __init__(self, batch_size, key, is_train=True, **cfg):
-        self.__dict__.update(cfg)
         self.batch_size = batch_size
+        self.key = key
         self.is_train = is_train
         self.num_workers = os.cpu_count()
+        self.__dict__.update(cfg)
+        self._init_d = self.__dict__.copy()
 
-        if 'yolov2-voc' == key:
+        if 'yolov2-voc' == self.key:
             if self.is_train:
                 paths = [
                     Path(self.data_dir) / 'VOCdevkit/VOC2007/ImageSets/Main/trainval.txt',
@@ -41,6 +43,9 @@ class DataLoader(DataLoader):
             num_workers=self.num_workers,
             collate_fn=self.dataset.collate_fn
         )
+
+    def reset(self):
+        self = self.__class__(**self._init_d)
 
 
 if __name__ == '__main__':

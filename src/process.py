@@ -1,6 +1,7 @@
 import argparse
 import torch
 import json
+import re
 from pathlib import Path
 from model.yolov2 import YoloV2
 from dataset import DataLoader
@@ -40,6 +41,7 @@ if __name__ == '__main__':
     # run process
     if args.task == 'train':
         cfg = {**cfg['train'], **cfg['common']}
+        cfg['last_epoch'] = int(re.findall(rf'{args.key}-(.+?).pt', weights_path)[0])
         process = Train(model=model, dataloader=dataloader, **cfg)
     elif args.task == 'evaluate':
         cfg = {**cfg['evaluate'], **cfg['common']}
