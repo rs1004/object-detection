@@ -1,7 +1,7 @@
 assets
 data
 result
-log
+logs
 
 .vscode
 DEV
