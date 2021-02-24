@@ -56,7 +56,7 @@ class Evaluate:
 
         s_df = pd.DataFrame([[result[ct][i]['ap'] for ct in correct_thresholds] for i in range(len(labels))])
         s_df.index = labels
-        s_df.columns = [f'ct = {ct:.02f}' for ct in correct_thresholds]
+        s_df.columns = [f'th = {ct:.02f}' for ct in correct_thresholds]
 
         s_df.loc['AP'] = s_df.mean(axis=0)
         s_df['mean'] = s_df.mean(axis=1)
