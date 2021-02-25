@@ -43,9 +43,11 @@ if __name__ == '__main__':
         cfg = {**cfg['train'], **cfg['common']}
         cfg['last_epoch'] = int(re.findall(rf'{args.key}-(.+?).pt', weights_path)[0])
         process = Train(model=model, dataloader=dataloader, **cfg)
+
     elif args.task == 'evaluate':
         cfg = {**cfg['evaluate'], **cfg['common']}
         process = Evaluate(model=model, dataloader=dataloader, **cfg)
+
     elif args.task == 'inference':
         cfg = {**cfg['inference'], **cfg['common']}
         process = Inference(model=model, dataloader=dataloader, **cfg)
