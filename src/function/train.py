@@ -22,13 +22,13 @@ class Train:
         min_loss = 99999
         torch.autograd.set_detect_anomaly(True)
         with SummaryWriter(log_dir=Path(self.log_dir)) as writer:
-            for epoch in range(self.last_epoch, self.last_epoch + self.epochs):
+            for epoch in range(self.last_epoch + 1, self.last_epoch + self.epochs + 1):
                 self.dataloader.reset()
                 running_loss = 0.0
                 with tqdm(self.dataloader, total=len(self.dataloader)) as pbar:
                     for images, gts, masks in pbar:
                         # description
-                        pbar.set_description(f'[Epoch {epoch+1}/{self.epochs}] loss: {running_loss}')
+                        pbar.set_description(f'[Epoch {epoch}/{self.epochs}] loss: {running_loss / (pbar.n + 1)}')
 
                         # to GPU device
                         images = images.to(device)
@@ -40,7 +40,7 @@ class Train:
 
                         # forward + backward + optimize
                         outputs = self.model(images)
-                        loss = self.model.loss(outputs, gts, masks, self.coefs)
+                        loss = self.model.loss(outputs, gts, masks, self.coefs, self.iou_thresh)
                         loss.backward()
                         optimizer.step()
                         running_loss += loss.item()

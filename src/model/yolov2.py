@@ -72,7 +72,7 @@ class YoloV2(Model):
         out = self.region(x)
         return out
 
-    def loss(self, outputs, gts, masks, coefs: tuple):
+    def loss(self, outputs, gts, masks, coefs: tuple, iou_thresh):
         l_coord, l_obj, l_noobj, l_class = coefs
         b = outputs.shape[0]
         loss_xyxy = loss_obj = loss_noobj = loss_c = 0
@@ -86,6 +86,7 @@ class YoloV2(Model):
 
             # confidence loss
             max_iou_i = box_iou(outputs[i, :, 0:4], gts[i, ids, 0:4]).max(dim=1).values
+            max_iou_i = torch.where(max_iou_i >= iou_thresh, max_iou_i, torch.zeros_like(max_iou_i))
             loss_obj = loss_obj + F.mse_loss(max_iou_i[ids], masks[i, ids], reduction='sum')
             loss_noobj = loss_noobj + F.mse_loss(max_iou_i[non_ids], masks[i, non_ids], reduction='sum')
 
