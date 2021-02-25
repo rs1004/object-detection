@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from model.base import Model
 from model.layers import Conv2dBNLeaky, Route, Reorg, Region
-from torchvision.ops import box_convert, box_iou
+from torchvision.ops import box_iou
 
 
 class YoloV2(Model):
@@ -75,17 +75,14 @@ class YoloV2(Model):
     def loss(self, outputs, gts, masks, coefs: tuple):
         l_coord, l_obj, l_noobj, l_class = coefs
         b = outputs.shape[0]
-        loss_xy = loss_wh = loss_obj = loss_noobj = loss_c = 0
+        loss_xyxy = loss_obj = loss_noobj = loss_c = 0
 
         for i in range(b):
             ids = torch.nonzero(masks[i]).reshape(-1)
             non_ids = torch.nonzero(1 - masks[i]).reshape(-1)
 
             # localization loss
-            out_coords = box_convert(outputs[i, ids, 0:4], in_fmt='xyxy', out_fmt='cxcywh')
-            gt_coords = box_convert(gts[i, ids, 0:4], in_fmt='xyxy', out_fmt='cxcywh')
-            loss_xy = loss_xy + F.mse_loss(out_coords[:, 0:2], gt_coords[:, 0:2], reduction='sum')
-            loss_wh = loss_wh + F.mse_loss(out_coords[:, 2:4].sqrt(), gt_coords[:, 2:4].sqrt(), reduction='sum')
+            loss_xyxy = loss_xyxy + F.mse_loss(outputs[i, ids, 0:4], gts[i, ids, 0:4], reduction='sum')
 
             # confidence loss
             max_iou_i = box_iou(outputs[i, :, 0:4], gts[i, ids, 0:4]).max(dim=1).values
@@ -96,7 +93,7 @@ class YoloV2(Model):
             loss_c = loss_c + F.cross_entropy(outputs[i, ids, 5:], gts[i, ids, 4].long(), reduction='sum')
 
         # sum up
-        loss = 1/b * (l_coord * (loss_xy + loss_wh) + l_obj * loss_obj + l_noobj * loss_noobj + l_class * loss_c)
+        loss = 1/b * (l_coord * loss_xyxy + l_obj * loss_obj + l_noobj * loss_noobj + l_class * loss_c)
         return loss
 
     def get_paramaters(self):

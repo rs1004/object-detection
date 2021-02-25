@@ -24,7 +24,7 @@ class Route(nn.Module):
         self.layers = layers
 
     def forward(self, xs):
-        return torch.cat(xs, axis=1)
+        return torch.cat(xs, dim=1)
 
 
 class Reorg(nn.Module):
@@ -33,7 +33,7 @@ class Reorg(nn.Module):
         self.stride = stride
 
     def forward(self, x):
-        b, c, h, w = x.data.size()
+        b, c, h, w = x.shape
         ws = self.stride
         hs = self.stride
         x = x.view(b, c, int(h / hs), hs, int(w / ws), ws).transpose(3, 4).contiguous()
@@ -79,6 +79,9 @@ class Region(nn.Module):
         x[:, :, 0:2] = x[:, :, 0:2] + all_anchors[:, 0:2]
         x[:, :, 2:4] = x[:, :, 2:4] * all_anchors[:, 2:4]
 
-        x[:, :, :4] = box_convert(x[:, :, :4], in_fmt='cxcywh', out_fmt='xyxy')
+        x = torch.cat([
+            box_convert(x[:, :, :4], in_fmt='cxcywh', out_fmt='xyxy'),
+            x[:, :, 4:]
+        ], dim=-1)
 
         return x
