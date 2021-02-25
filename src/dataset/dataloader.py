@@ -29,7 +29,7 @@ class DataLoader(DL):
                 ]
                 tfs = transforms.Compose([
                     transforms.ToTensor()])
-            input_h, input_w = choice(self.sizes)
+            input_h, input_w = choice(self.sizes[0 if self.is_train else 1])
             self.dataset = PascalVOCV2(
                 data_list_paths=paths,
                 input_h=input_h,

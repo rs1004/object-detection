@@ -97,7 +97,10 @@ class YoloV2(Model):
         loss = 1/b * (l_coord * loss_xyxy + l_obj * loss_obj + l_noobj * loss_noobj + l_class * loss_c)
         return loss
 
-    def get_paramaters(self):
+    def get_paramaters(self, is_transfer=False):
+        if is_transfer:
+            for p in self.features.parameters():
+                p.requires_grad = False
         return self.parameters()
 
 

@@ -6,10 +6,11 @@ from model import Conv2dBNLeaky
 
 
 class Darknet2PT:
-    def __init__(self, weights_path, model, save_path):
+    def __init__(self, weights_path, model, save_path, is_transfer=False):
         self.weights_path = weights_path
         self.model = model
         self.save_path = save_path
+        self.is_transfer = is_transfer
 
     def run(self):
         with open(self.weights_path, 'rb') as wf:
@@ -27,12 +28,13 @@ class Darknet2PT:
                     m.bn.running_var = get_parameter((m.bn.num_features, ), return_tensor=True)
                     m.conv.weight = get_parameter((m.conv.out_channels, m.conv.in_channels, m.conv.kernel_size[0], m.conv.kernel_size[0]))
 
-            m = self.model.detector
-            self.model.detector.bias = get_parameter((m.out_channels, ))
-            self.model.detector.weight = get_parameter((m.out_channels, m.in_channels, m.kernel_size[0], m.kernel_size[0]))
+            if not self.is_transfer:
+                m = self.model.detector
+                self.model.detector.bias = get_parameter((m.out_channels, ))
+                self.model.detector.weight = get_parameter((m.out_channels, m.in_channels, m.kernel_size[0], m.kernel_size[0]))
 
-            remain = len(wf.read())
-            assert remain == 0, f'weight buffer remained: {remain}'
+                remain = len(wf.read())
+                assert remain == 0, f'weight buffer remained: {remain}'
 
         torch.save(self.model.state_dict(), self.save_path)
 
@@ -51,12 +53,23 @@ class Darknet2PT:
 if __name__ == '__main__':
     from model.yolov2 import YoloV2
 
-    model = YoloV2()
+    # ------ set params ------ #
+    anchors = torch.tensor([
+        [1.3221, 1.73145],
+        [3.19275, 4.00944],
+        [5.05587, 8.09892],
+        [9.47112, 4.84053],
+        [11.2364, 10.0071]
+    ])
+    num_classes = 2
+    # ------------------------ #
 
-    converter = Darknet2PT('./assets/weights/yolo-voc.weights', model, './assets/weights/yolov2-voc-00000.pt')
+    model = YoloV2(anchors, num_classes)
+
+    converter = Darknet2PT('./assets/weights/yolo-voc.weights', model, './assets/weights/yolov2-org-00000.pt', True)
     converter.run()
 
-    model = YoloV2()
-    model.load_state_dict(torch.load('./assets/weights/yolov2-voc-00000.pt'))
+    model = YoloV2(anchors, num_classes)
+    model.load_state_dict(torch.load('./assets/weights/yolov2-org-00000.pt'))
 
     print(model.features[0].conv.weight)
