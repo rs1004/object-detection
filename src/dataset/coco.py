@@ -5,9 +5,9 @@ from PIL import Image
 
 
 class Coco(Dataset):
-    def __init__(self, data_dir, data_name, input_h, input_w, transforms=None):
+    def __init__(self, data_dir, input_h, input_w, transforms=None):
         super(Coco, self).__init__()
-        self.data_list = self._get_data_list(data_dir, data_name)
+        self.data_list = self._get_data_list(data_dir)
         self.input_h, self.input_w = input_h, input_w
         self.labels = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign',
                        'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella',
@@ -60,9 +60,9 @@ class Coco(Dataset):
 
         return image, anno
 
-    def _get_data_list(self, data_dir, data_name):
-        image_paths = sorted((data_dir / 'images' / data_name).glob('*.jpg'))
-        anno_paths = sorted((data_dir / 'annos' / data_name).glob('*.json'))
+    def _get_data_list(self, data_dir):
+        image_paths = sorted(data_dir.glob('*.jpg'))
+        anno_paths = sorted(data_dir.glob('*.json'))
 
         data_list = [(ip.resolve().as_posix(), ap.resolve().as_posix()) for ip, ap in zip(image_paths, anno_paths)]
 

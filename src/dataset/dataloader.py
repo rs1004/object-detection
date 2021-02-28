@@ -54,8 +54,7 @@ class DataLoader(DL):
                     transforms.ToTensor()])
             input_h, input_w = choice(self.sizes[0 if self.is_train else 1])
             self.dataset = Coco(
-                data_dir=data_dir,
-                data_name=data_name,
+                data_dir=data_dir / data_name,
                 input_h=input_h,
                 input_w=input_w,
                 transforms=tfs)
