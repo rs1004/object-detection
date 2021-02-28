@@ -1,12 +1,11 @@
 import torch
 import xml.etree.ElementTree as ET
 from torch.utils.data import Dataset
-from torchvision.ops import box_convert, box_iou
 from PIL import Image
 
 
 class PascalVOC(Dataset):
-    def __init__(self, data_list_paths, input_h, input_w, transform=None):
+    def __init__(self, data_list_paths, input_h, input_w, transforms=None):
         super(PascalVOC, self).__init__()
         self.data_list = self._get_data_list(data_list_paths)
         self.input_h, self.input_w = input_h, input_w
@@ -32,7 +31,7 @@ class PascalVOC(Dataset):
             'train',
             'tvmonitor'
         ]
-        self.transform = transform
+        self.transforms = transforms
 
     def __len__(self):
         return len(self.data_list)
@@ -70,9 +69,9 @@ class PascalVOC(Dataset):
         else:
             anno = torch.empty(size=(0, 7))
 
-        # transform
-        if self.transform is not None:
-            image = self.transform(image)
+        # transforms
+        if self.transforms is not None:
+            image = self.transforms(image)
 
         return image, anno
 
@@ -88,46 +87,3 @@ class PascalVOC(Dataset):
                 for file_name in file_names]
 
         return data_list
-
-
-class PascalVOCV2(PascalVOC):
-    def __init__(self, data_list_paths, input_h, input_w, transforms=None):
-        super(PascalVOCV2, self).__init__(data_list_paths, input_h, input_w, transforms)
-        self.anchors = torch.tensor([
-            [1.3221, 1.73145],
-            [3.19275, 4.00944],
-            [5.05587, 8.09892],
-            [9.47112, 4.84053],
-            [11.2364, 10.0071]
-        ])
-        self.grid_unit = 32
-        self.grid_h = self.input_h // self.grid_unit
-        self.grid_w = self.input_w // self.grid_unit
-
-        self.collate_fn = None
-
-    def __getitem__(self, idx):
-        image, anno = super(PascalVOCV2, self).__getitem__(idx)
-
-        gt = torch.zeros((self.grid_h * self.grid_w * len(self.anchors), anno.shape[1]))
-        mask = torch.zeros((self.grid_h * self.grid_w * len(self.anchors)))
-
-        if len(anno) > 0:
-            anno[:, :4] /= self.grid_unit
-            cx, cy = torch.meshgrid(torch.arange(0.5, self.grid_w), torch.arange(0.5, self.grid_h))
-            cx = cx.t().contiguous().view(-1, 1)  # transpose because anchors to be organized in H x W order
-            cy = cy.t().contiguous().view(-1, 1)
-
-            centers = torch.cat([cx, cy], axis=1).float()
-
-            all_anchors = torch.cat([
-                centers.view(-1, 1, 2).expand(-1, len(self.anchors), 2),
-                self.anchors.view(1, -1, 2).expand(self.grid_h * self.grid_w, -1, 2)
-            ], axis=2).view(-1, 4)
-            all_anchors = box_convert(all_anchors, in_fmt='cxcywh', out_fmt='xyxy')
-
-            indices = box_iou(anno[:, :4], all_anchors).max(dim=1).indices
-            gt[indices] = anno
-            mask[indices] = 1.
-
-        return image, gt, mask
