@@ -6,6 +6,7 @@ from random import choice
 from functools import partial
 from pathlib import Path
 from dataset.pascalvoc import PascalVOC
+from dataset.coco import Coco
 from torchvision.ops import box_convert, box_iou
 
 
@@ -40,6 +41,29 @@ class DataLoader(DL):
                 transforms=tfs)
             anchors = torch.tensor(self.anchors)
             collate_fn = partial(collate_yolov2, anchors=anchors, input_h=input_h, input_w=input_w)
+
+        elif 'yolov2-coco' == self.key:
+            data_dir = Path(self.data_dir) / 'coco'
+            if self.is_train:
+                data_name = 'train2014'
+                tfs = transforms.Compose([
+                    transforms.ToTensor()])
+            else:
+                data_name = 'val2014'
+                tfs = transforms.Compose([
+                    transforms.ToTensor()])
+            input_h, input_w = choice(self.sizes[0 if self.is_train else 1])
+            self.dataset = Coco(
+                data_dir=data_dir,
+                data_name=data_name,
+                input_h=input_h,
+                input_w=input_w,
+                transforms=tfs)
+            anchors = torch.tensor(self.anchors)
+            collate_fn = partial(collate_yolov2, anchors=anchors, input_h=input_h, input_w=input_w)
+
+        else:
+            raise NotImplementedError(f'{self.key} is not expected')
 
         super(DataLoader, self).__init__(
             dataset=self.dataset,

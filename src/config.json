@@ -1,4 +1,60 @@
 {
+    "yolov2-coco": {
+        "common": {
+            "data_dir": "/home/sato/work/yolo/data",
+            "assets_dir": "/home/sato/work/yolo/assets",
+            "log_dir": "/home/sato/work/yolo/logs",
+            "result_dir": "/home/sato/work/yolo/result"
+        },
+        "dataloader": {
+            "sizes": [
+                [
+                    [480, 480],
+                    [512, 512],
+                    [544, 544],
+                    [576, 576],
+                    [608, 608],
+                    [640, 640],
+                    [672, 672],
+                    [704, 704],
+                    [736, 736]
+                ],
+                [
+                    [608, 608]
+                ]
+            ],
+            "anchors":[
+                [0.57273, 0.677385],
+                [1.87446, 2.06253],
+                [3.33843, 5.47434],
+                [7.88282, 3.52778],
+                [9.77052, 9.16828]
+            ]
+        },
+        "train": {
+            "is_transfer": false,
+            "batch_size": 32,
+            "lr": 0.00001,
+            "momentum": 0.9,
+            "decay": 0.0005,
+            "steps": [100, 200],
+            "gamma": 0.1,
+            "epochs": 100,
+            "coefs": [1, 5, 1, 1],
+            "iou_thresh": 0.6
+        },
+        "inference": {
+            "font_name": "Gargi.ttf",
+            "font_size": 15,
+            "num_output": 10,
+            "conf_thresh": 0.3,
+            "nms_thresh": 0.6
+        },
+        "evaluate": {
+            "nms_thresh": 0.6,
+            "mpolicy": "greedy"
+        }
+    },
     "yolov2-voc": {
         "common": {
             "data_dir": "/home/sato/work/yolo/data",

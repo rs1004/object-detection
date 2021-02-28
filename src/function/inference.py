@@ -3,8 +3,6 @@ import seaborn as sns
 from torchvision.ops import batched_nms
 from PIL import Image, ImageFont, ImageDraw
 from pathlib import Path
-from functools import partial
-from multiprocessing import Pool
 from tqdm import tqdm
 
 
@@ -37,9 +35,9 @@ class Inference:
                 images = images.to('cpu')
                 outputs = outputs.to('cpu')
 
-                f = partial(self._draw_and_save, colors=colors, save_dir=save_dir)
-                with Pool() as p:
-                    saved = p.starmap(f, zip(range(count, len(images) + count), images, outputs))
+                saved = []
+                for i, image, output in zip(range(count, len(images) + count), images, outputs):
+                    saved.append(self._draw_and_save(i, image, output, colors, save_dir))
 
                 count += sum(saved)
 

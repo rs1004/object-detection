@@ -64,6 +64,6 @@ class Coco(Dataset):
         image_paths = sorted((data_dir / 'images' / data_name).glob('*.jpg'))
         anno_paths = sorted((data_dir / 'annos' / data_name).glob('*.json'))
 
-        data_list = [(ip.resolve().as_posix(), ap.resolve.as_posix()) for ip, ap in zip(image_paths, anno_paths)]
+        data_list = [(ip.resolve().as_posix(), ap.resolve().as_posix()) for ip, ap in zip(image_paths, anno_paths)]
 
         return data_list

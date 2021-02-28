@@ -55,21 +55,21 @@ if __name__ == '__main__':
 
     # ------ set params ------ #
     anchors = torch.tensor([
-        [1.3221, 1.73145],
-        [3.19275, 4.00944],
-        [5.05587, 8.09892],
-        [9.47112, 4.84053],
-        [11.2364, 10.0071]
+        [0.57273, 0.677385],
+        [1.87446, 2.06253],
+        [3.33843, 5.47434],
+        [7.88282, 3.52778],
+        [9.77052, 9.16828]
     ])
-    num_classes = 2
+    num_classes = 80
     # ------------------------ #
 
     model = YoloV2(anchors, num_classes)
 
-    converter = Darknet2PT('./assets/weights/yolo-voc.weights', model, './assets/weights/yolov2-org-00000.pt', True)
+    converter = Darknet2PT('./assets/weights/yolov2.weights', model, './assets/weights/yolov2-coco-00000.pt', False)
     converter.run()
 
     model = YoloV2(anchors, num_classes)
-    model.load_state_dict(torch.load('./assets/weights/yolov2-org-00000.pt'))
+    model.load_state_dict(torch.load('./assets/weights/yolov2-coco-00000.pt'))
 
     print(model.features[0].conv.weight)

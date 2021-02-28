@@ -33,10 +33,12 @@ if __name__ == '__main__':
     # prepare
     dataloader = DataLoader(batch_size=args.batch_size, key=args.key, is_train=args.task == 'train', **{**cfg['common'], **cfg['dataloader']})
 
-    if args.key == 'yolov2-voc':
-        model = YoloV2(anchors=dataloader.dataset.anchors, num_classes=len(dataloader.dataset.labels))
+    if 'yolov2' in args.key:
+        model = YoloV2(anchors=cfg['dataloader']['anchors'], num_classes=len(dataloader.dataset.labels))
         weights_path = get_weights_path(key=args.key, cfg=cfg)
         model.load_state_dict(torch.load(weights_path))
+    else:
+        raise NotImplementedError(f'{args.key} is not expected')
 
     # run process
     if args.task == 'train':
