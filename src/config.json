@@ -52,7 +52,7 @@
         },
         "evaluate": {
             "nms_thresh": 0.6,
-            "mpolicy": "greedy"
+            "mpolicy": "soft"
         }
     },
     "yolov2-voc": {
