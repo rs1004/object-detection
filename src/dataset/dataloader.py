@@ -61,6 +61,25 @@ class DataLoader(DL):
             anchors = torch.tensor(self.anchors)
             collate_fn = partial(collate_yolov2, anchors=anchors, input_h=input_h, input_w=input_w)
 
+        elif 'yolov2-maskw' == self.key:
+            data_dir = Path(self.data_dir) / 'maskWearing'
+            if self.is_train:
+                data_name = 'train'
+                tfs = transforms.Compose([
+                    transforms.ToTensor()])
+            else:
+                data_name = 'val'
+                tfs = transforms.Compose([
+                    transforms.ToTensor()])
+            input_h, input_w = choice(self.sizes[0 if self.is_train else 1])
+            self.dataset = Coco(
+                data_dir=data_dir / data_name,
+                input_h=input_h,
+                input_w=input_w,
+                transforms=tfs)
+            anchors = torch.tensor(self.anchors)
+            collate_fn = partial(collate_yolov2, anchors=anchors, input_h=input_h, input_w=input_w)
+
         else:
             raise NotImplementedError(f'{self.key} is not expected')
 

@@ -4,18 +4,12 @@ from torch.utils.data import Dataset
 from PIL import Image
 
 
-class Coco(Dataset):
+class MaskWearing(Dataset):
     def __init__(self, data_dir, input_h, input_w, transforms=None):
-        super(Coco, self).__init__()
+        super(MaskWearing, self).__init__()
         self.data_list = self._get_data_list(data_dir)
         self.input_h, self.input_w = input_h, input_w
-        self.labels = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'stop sign',
-                       'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella',
-                       'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard',
-                       'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple', 'sandwich', 'orange',
-                       'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'dining table', 'toilet', 'tv',
-                       'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock',
-                       'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush']
+        self.labels = ['People', 'mask', 'no-mask']
         self.transforms = transforms
 
     def __len__(self):
