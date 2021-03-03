@@ -28,7 +28,7 @@ class Train:
                 with tqdm(self.dataloader, total=len(self.dataloader)) as pbar:
                     for images, gts, masks in pbar:
                         # description
-                        pbar.set_description(f'[Epoch {epoch}/{self.epochs}] loss: {running_loss / (pbar.n + 1)}')
+                        pbar.set_description(f'[Epoch {epoch}/{self.last_epoch + self.epochs}] loss: {running_loss / (pbar.n + 1)}')
 
                         # to GPU device
                         images = images.to(device)

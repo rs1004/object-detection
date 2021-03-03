@@ -76,6 +76,8 @@ class Region(nn.Module):
             anchors.view(1, -1, 2).expand(h * w, -1, 2)
         ], axis=2).view(-1, 4)  # (h * w * num_anchors, [cx, cy, w, h])
 
+        all_anchors = all_anchors.to(x.device)
+
         x[:, :, 0:2] = x[:, :, 0:2] + all_anchors[:, 0:2]
         x[:, :, 2:4] = x[:, :, 2:4] * all_anchors[:, 2:4]
 
