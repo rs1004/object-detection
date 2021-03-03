@@ -20,7 +20,6 @@ if __name__ == '__main__':
     parser.add_argument('task', choices=['train', 'evaluate', 'inference'], default='train')
     parser.add_argument('key', default='yolov2-voc')
     parser.add_argument('--batch_size', '-b', type=int, default=32)
-    parser.add_argument('--transfer_learning', '-t', action='store_true')
     args = parser.parse_args()
 
     # load config

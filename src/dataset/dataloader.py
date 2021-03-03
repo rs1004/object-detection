@@ -7,6 +7,7 @@ from functools import partial
 from pathlib import Path
 from dataset.pascalvoc import PascalVOC
 from dataset.coco import Coco
+from dataset.maskwearing import MaskWearing
 from torchvision.ops import box_convert, box_iou
 
 
@@ -68,11 +69,11 @@ class DataLoader(DL):
                 tfs = transforms.Compose([
                     transforms.ToTensor()])
             else:
-                data_name = 'val'
+                data_name = 'valid'
                 tfs = transforms.Compose([
                     transforms.ToTensor()])
             input_h, input_w = choice(self.sizes[0 if self.is_train else 1])
-            self.dataset = Coco(
+            self.dataset = MaskWearing(
                 data_dir=data_dir / data_name,
                 input_h=input_h,
                 input_w=input_w,
@@ -138,9 +139,9 @@ def collate_yolov2(batch, anchors, input_h, input_w):
 if __name__ == '__main__':
     import json
     with open('src/config.json', 'r') as f:
-        cfg = json.load(f)['yolov2-voc']
+        cfg = json.load(f)['yolov2-maskw']
     cfg = dict(cfg['common'], **cfg['dataloader'])
-    dataloader = DataLoader(32, 'yolov2-voc', is_train=True, **cfg)
+    dataloader = DataLoader(32, 'yolov2-maskw', is_train=True, **cfg)
 
     for image, gt, mask in dataloader:
         print(image.shape)
