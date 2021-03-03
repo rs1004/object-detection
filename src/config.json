@@ -2,7 +2,7 @@
     "yolov2-voc": {
         "common": {
             "data_dir": "/home/sato/work/yolo/data",
-            "assets_dir": "/home/sato/work/yolo/assets",
+            "weights_dir": "/home/sato/work/yolo/assets/weights",
             "log_dir": "/home/sato/work/yolo/logs",
             "result_dir": "/home/sato/work/yolo/result"
         },
@@ -58,7 +58,7 @@
     "yolov2-coco": {
         "common": {
             "data_dir": "/home/sato/work/yolo/data",
-            "assets_dir": "/home/sato/work/yolo/assets",
+            "weights_dir": "/home/sato/work/yolo/assets/weights",
             "log_dir": "/home/sato/work/yolo/logs",
             "result_dir": "/home/sato/work/yolo/result"
         },
@@ -114,7 +114,7 @@
     "yolov2-maskw": {
         "common": {
             "data_dir": "/home/sato/work/yolo/data",
-            "assets_dir": "/home/sato/work/yolo/assets",
+            "weights_dir": "/home/sato/work/yolo/assets/weights",
             "log_dir": "/home/sato/work/yolo/logs",
             "result_dir": "/home/sato/work/yolo/result"
         },

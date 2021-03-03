@@ -46,7 +46,7 @@ class Train:
                         running_loss += loss.item()
 
                     if running_loss < min_loss:
-                        save_path = Path(self.assets_dir) / f'{self.key}-{epoch:05}.pt'
+                        save_path = Path(self.weights_dir) / f'{self.key}-{epoch:05}.pt'
                         torch.save(self.model.state_dict(), save_path)
                         min_loss = running_loss
 

@@ -11,7 +11,7 @@ from function.evaluate import Evaluate
 
 
 def get_weights_path(key, cfg):
-    weights_dir = Path(cfg['common']['assets_dir']) / 'weights'
+    weights_dir = Path(cfg['common']['weights_dir'])
     return max(weights_dir.glob(f'{key}-*.pt')).resolve().as_posix()
 
 
@@ -42,6 +42,7 @@ if __name__ == '__main__':
     # run process
     if args.task == 'train':
         cfg = {**cfg['train'], **cfg['common']}
+        cfg['key'] = args.key
         cfg['last_epoch'] = int(re.findall(rf'{args.key}-(.+?).pt', weights_path)[0])
         process = Train(model=model, dataloader=dataloader, **cfg)
 
