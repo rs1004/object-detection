@@ -46,7 +46,10 @@ class Train:
                         pbar.set_description(f'[Epoch {epoch}/{self.last_epoch + self.epochs}] loss: {running_loss}')
 
                 if running_loss < min_loss:
-                    save_path = Path(self.weights_dir) / f'{self.key}-{epoch:05}.pt'
+                    weights_dir = Path(self.weights_dir)
+                    for weights_file in weights_dir.glob(f'{self.key}-*.pt'):
+                        weights_file.unlink()
+                    save_path = weights_dir / f'{self.key}-{epoch:05}.pt'
                     torch.save(self.model.state_dict(), save_path)
                     min_loss = running_loss
 
