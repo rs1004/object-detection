@@ -42,8 +42,8 @@ class Coco(Dataset):
 
             xmin = obj['bbox'][0] * x_scale
             ymin = obj['bbox'][1] * y_scale
-            xmax = (xmin + obj['bbox'][2]) * x_scale
-            ymax = (ymin + obj['bbox'][3]) * y_scale
+            xmax = (obj['bbox'][0] + obj['bbox'][2]) * x_scale
+            ymax = (obj['bbox'][1] + obj['bbox'][3]) * y_scale
 
             iscrowd = obj['iscrowd']
 
