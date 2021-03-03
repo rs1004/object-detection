@@ -27,9 +27,6 @@ class Train:
                 running_loss = 0.0
                 with tqdm(self.dataloader, total=len(self.dataloader)) as pbar:
                     for images, gts, masks in pbar:
-                        # description
-                        pbar.set_description(f'[Epoch {epoch}/{self.last_epoch + self.epochs}] loss: {running_loss / (pbar.n + 1)}')
-
                         # to GPU device
                         images = images.to(device)
                         gts = gts.to(device)
@@ -45,13 +42,16 @@ class Train:
                         optimizer.step()
                         running_loss += loss.item()
 
-                    if running_loss < min_loss:
-                        save_path = Path(self.weights_dir) / f'{self.key}-{epoch:05}.pt'
-                        torch.save(self.model.state_dict(), save_path)
-                        min_loss = running_loss
+                        # description
+                        pbar.set_description(f'[Epoch {epoch}/{self.last_epoch + self.epochs}] loss: {running_loss / (pbar.n + 1)}')
 
-                    scheduler.step()
-                    writer.add_scalar('loss', running_loss, epoch)
-                    writer.add_scalar('lr', scheduler.get_last_lr()[0], epoch)
+                if running_loss < min_loss:
+                    save_path = Path(self.weights_dir) / f'{self.key}-{epoch:05}.pt'
+                    torch.save(self.model.state_dict(), save_path)
+                    min_loss = running_loss
+
+                scheduler.step()
+                writer.add_scalar('loss', running_loss, epoch)
+                writer.add_scalar('lr', scheduler.get_last_lr()[0], epoch)
 
         print('Finished Training')
