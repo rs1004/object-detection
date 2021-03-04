@@ -79,15 +79,15 @@ class YoloV2(Model):
 
         for i in range(b):
             ids = torch.nonzero(masks[i]).reshape(-1)
-            non_ids = torch.where((outputs[i, :, 4] >= iou_thresh) & (masks[i] == 0))[0]
+            non_ids = torch.nonzero(1 - masks[i]).reshape(-1)
 
             # localization loss
             loss_xyxy = loss_xyxy + F.mse_loss(outputs[i, ids, 0:4], gts[i, ids, 0:4], reduction='sum') / b
 
             # confidence loss
             max_iou_i = box_iou(outputs[i, :, 0:4], gts[i, ids, 0:4]).max(dim=1).values
-            loss_obj = loss_obj + F.mse_loss(max_iou_i[ids], masks[i, ids], reduction='sum') / b
-            loss_noobj = loss_noobj + F.mse_loss(max_iou_i[non_ids], masks[i, non_ids], reduction='sum') / b
+            loss_obj = loss_obj + F.mse_loss(outputs[i, ids, 4], max_iou_i[ids], reduction='sum') / b
+            loss_noobj = loss_noobj + F.mse_loss(outputs[i, non_ids, 4], max_iou_i[non_ids], reduction='sum') / b
 
             # class loss
             loss_c = loss_c + F.cross_entropy(outputs[i, ids, 5:], gts[i, ids, 4].long(), reduction='sum') / b
