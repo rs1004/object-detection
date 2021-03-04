@@ -82,19 +82,17 @@ class YoloV2(Model):
             non_ids = torch.where((outputs[i, :, 4] >= iou_thresh) & (masks[i] == 0))[0]
 
             # localization loss
-            loss_xyxy = loss_xyxy + F.mse_loss(outputs[i, ids, 0:4], gts[i, ids, 0:4], reduction='sum')
+            loss_xyxy = loss_xyxy + F.mse_loss(outputs[i, ids, 0:4], gts[i, ids, 0:4], reduction='sum') / b
 
             # confidence loss
             max_iou_i = box_iou(outputs[i, :, 0:4], gts[i, ids, 0:4]).max(dim=1).values
-            loss_obj = loss_obj + F.mse_loss(max_iou_i[ids], masks[i, ids], reduction='sum')
-            loss_noobj = loss_noobj + F.mse_loss(max_iou_i[non_ids], masks[i, non_ids], reduction='sum')
+            loss_obj = loss_obj + F.mse_loss(max_iou_i[ids], masks[i, ids], reduction='sum') / b
+            loss_noobj = loss_noobj + F.mse_loss(max_iou_i[non_ids], masks[i, non_ids], reduction='sum') / b
 
             # class loss
-            loss_c = loss_c + F.cross_entropy(outputs[i, ids, 5:], gts[i, ids, 4].long(), reduction='sum')
+            loss_c = loss_c + F.cross_entropy(outputs[i, ids, 5:], gts[i, ids, 4].long(), reduction='sum') / b
 
-        # sum up
-        loss = 1/b * (l_coord * loss_xyxy + l_obj * loss_obj + l_noobj * loss_noobj + l_class * loss_c)
-        return loss
+        return (l_coord * loss_xyxy, l_obj * loss_obj, l_noobj * loss_noobj, l_class * loss_c)
 
     def get_paramaters(self, is_transfer=False):
         if is_transfer:
