@@ -9,7 +9,7 @@ class MaskWearing(Dataset):
         super(MaskWearing, self).__init__()
         self.data_list = self._get_data_list(data_dir)
         self.input_h, self.input_w = input_h, input_w
-        self.labels = ['People', 'mask', 'no-mask']
+        self.labels = ['mask', 'no-mask']
         self.transforms = transforms
 
     def __len__(self):
