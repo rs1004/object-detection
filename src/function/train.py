@@ -49,7 +49,7 @@ class Train:
                         running_loss_c += loss_c.item()
 
                         # description
-                        pbar.set_description(f'[Epoch {epoch}/{self.last_epoch + self.epochs}] loss: {running_loss}')
+                        pbar.set_description(f'[Epoch {epoch}/{self.last_epoch + self.epochs}] loss: {running_loss / (pbar.n + 1)}')
 
                 if running_loss < min_loss:
                     weights_dir = Path(self.weights_dir)
