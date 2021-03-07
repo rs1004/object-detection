@@ -1,0 +1,39 @@
+{
+    "common": {
+        "root_dir": "/home/sato/work/yolo",
+        "data_dir": "data",
+        "weights_dir": "assets/weights",
+        "log_dir": "logs",
+        "result_dir": "result",
+        "input_size": 416,
+        "batch_size": 4
+    },
+    "train": {
+        "lr": 0.0001,
+        "momentum": 0.9,
+        "decay": 0.0005,
+        "steps": [
+            100,
+            200
+        ],
+        "gamma": 0.9,
+        "epochs": 100,
+        "coefs": [
+            1,
+            5,
+            1,
+            1
+        ]
+    },
+    "inference": {
+        "font_name": "Gargi.ttf",
+        "font_size": 15,
+        "num_output": 10,
+        "conf_thresh": 0.3,
+        "nms_thresh": 0.6
+    },
+    "evaluate": {
+        "nms_thresh": 0.6,
+        "mpolicy": "greedy"
+    }
+}

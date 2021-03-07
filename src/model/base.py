@@ -6,7 +6,3 @@ class Model(nn.Module, metaclass=ABCMeta):
     @abstractmethod
     def loss(self):
         pass
-
-    @abstractmethod
-    def get_paramaters(self):
-        pass

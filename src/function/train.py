@@ -13,7 +13,7 @@ class Train:
         self.__dict__.update(cfg)
 
     def run(self):
-        optimizer = opt.SGD(self.model.get_paramaters(self.is_transfer), lr=self.lr, momentum=self.momentum, weight_decay=self.decay)
+        optimizer = opt.SGD(self.model.parameters(), lr=self.lr, momentum=self.momentum, weight_decay=self.decay)
         scheduler = opt.lr_scheduler.MultiStepLR(optimizer=optimizer, milestones=self.steps, gamma=self.gamma)
 
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -23,7 +23,6 @@ class Train:
         torch.autograd.set_detect_anomaly(True)
         with SummaryWriter(log_dir=Path(self.log_dir)) as writer:
             for epoch in range(self.last_epoch + 1, self.last_epoch + self.epochs + 1):
-                self.dataloader.reset()
                 running_loss = 0.0
                 running_loss_loc = running_loss_obj = running_loss_noobj = running_loss_c = 0
                 with tqdm(self.dataloader, total=len(self.dataloader)) as pbar:
@@ -38,7 +37,7 @@ class Train:
 
                         # forward + backward + optimize
                         outputs = self.model(images)
-                        loss_loc, loss_obj, loss_noobj, loss_c = self.model.loss(outputs, gts, masks, self.coefs, self.iou_thresh)
+                        loss_loc, loss_obj, loss_noobj, loss_c = self.model.loss(outputs, gts, masks, self.coefs)
                         loss = loss_loc + loss_obj + loss_noobj + loss_c
                         loss.backward()
                         optimizer.step()

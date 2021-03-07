@@ -21,7 +21,7 @@ class DataLoader(DL):
             tfs = transforms.Compose([
                 transforms.ToTensor()])
 
-        dataset = ImageAnnotationSet(
+        self.dataset = ImageAnnotationSet(
             data_dir=data_dir,
             input_size=self.input_size,
             transforms=tfs
@@ -34,7 +34,7 @@ class DataLoader(DL):
             raise NotImplementedError(f'{self.key} is not expected')
 
         super(DataLoader, self).__init__(
-            dataset=dataset,
+            dataset=self.dataset,
             batch_size=self.batch_size,
             shuffle=is_train,
             num_workers=os.cpu_count(),

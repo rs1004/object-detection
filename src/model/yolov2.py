@@ -72,7 +72,7 @@ class YoloV2(Model):
         out = self.region(x)
         return out
 
-    def loss(self, outputs, gts, masks, coefs: tuple, iou_thresh):
+    def loss(self, outputs, gts, masks, coefs: tuple):
         l_coord, l_obj, l_noobj, l_class = coefs
         b = outputs.shape[0]
         loss_xyxy = loss_obj = loss_noobj = loss_c = 0
@@ -93,12 +93,6 @@ class YoloV2(Model):
             loss_c = loss_c + F.cross_entropy(outputs[i, ids, 5:], gts[i, ids, 4].long(), reduction='sum') / b
 
         return (l_coord * loss_xyxy, l_obj * loss_obj, l_noobj * loss_noobj, l_class * loss_c)
-
-    def get_paramaters(self, is_transfer=False):
-        if is_transfer:
-            for p in self.features.parameters():
-                p.requires_grad = False
-        return self.parameters()
 
 
 if __name__ == '__main__':
