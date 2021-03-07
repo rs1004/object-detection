@@ -1,9 +1,9 @@
 assets
 train
 validation
-info.json
 result
 logs
+sample*
 
 .vscode
 DEV
