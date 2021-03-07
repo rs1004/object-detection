@@ -4,7 +4,7 @@ Set as below:
 somewhere
     ├ VOC2007
     ├ VOC2012
-    └ convert_voc.py
+    └ convert_pascal_voc.py
 """
 
 from pathlib import Path
@@ -13,7 +13,7 @@ from tqdm import tqdm
 import xml.etree.ElementTree as ET
 import json
 
-dst_dir = Path('/home/sato/work/yolo/data/pascalvoc')
+dst_dir = Path('/home/sato/work/yolo/data/pascal_voc')
 
 labels = [
     'aeroplane',

@@ -1,5 +1,7 @@
 assets
-data
+train
+validation
+info.json
 result
 logs
 

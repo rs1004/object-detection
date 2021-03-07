@@ -17,4 +17,4 @@ for p in data_dir.glob('**/*.json'):
 
 whs = np.array(whs)
 kmeans = KMeans(n_clusters=5, random_state=0).fit(whs)
-print(kmeans.cluster_centers_ * input_size / 32)
+print(kmeans.cluster_centers_)

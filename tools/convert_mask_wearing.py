@@ -5,7 +5,7 @@ somewhere
     ├ test
     ├ train
     ├ valid
-    └ convert_mask.py
+    └ convert_mask_wearing.py
 """
 
 from pathlib import Path
