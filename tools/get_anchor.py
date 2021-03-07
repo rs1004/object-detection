@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 input_size = 416
-data_dir = Path('/home/sato/work/yolo/data/mask_wearing')
+data_dir = Path('/home/sato/work/yolo/data/maskw')
 
 whs = []
 for p in data_dir.glob('**/*.json'):

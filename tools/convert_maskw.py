@@ -5,7 +5,7 @@ somewhere
     ├ test
     ├ train
     ├ valid
-    └ convert_mask_wearing.py
+    └ convert_maskw.py
 """
 
 from pathlib import Path
@@ -13,7 +13,7 @@ from shutil import copy
 from tqdm import tqdm
 import json
 
-dst_dir = Path('/home/sato/work/yolo/data/mask_wearing')
+dst_dir = Path('/home/sato/work/yolo/data/maskw')
 
 for t in ['train', 'valid']:
     data_dir = Path(__file__).parent / t
