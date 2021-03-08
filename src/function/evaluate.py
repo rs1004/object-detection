@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
-from torchvision.ops import batched_nms, box_iou
+from torchvision.ops import nms, box_iou
 from collections import Counter
 
 
@@ -81,7 +81,7 @@ class MeanAveragePrecision:
         gt_class_ids = gt[:, 4]
 
         # leave valid bboxes
-        ids = batched_nms(boxes, confs, class_ids, iou_threshold=self.nms_thresh)
+        ids = nms(boxes, confs, iou_threshold=self.nms_thresh)
         boxes = boxes[ids]
         confs = confs[ids]
         class_ids = class_ids[ids]

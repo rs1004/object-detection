@@ -1,6 +1,6 @@
 import torch
 import seaborn as sns
-from torchvision.ops import batched_nms
+from torchvision.ops import nms
 from PIL import Image, ImageFont, ImageDraw
 from pathlib import Path
 from tqdm import tqdm
@@ -60,7 +60,7 @@ class Inference:
         class_ids = class_ids[confs > self.conf_thresh]
         confs = confs[confs > self.conf_thresh]
 
-        ids = batched_nms(boxes, confs, class_ids, iou_threshold=self.nms_thresh)
+        ids = nms(boxes, confs, iou_threshold=self.nms_thresh)
         boxes = boxes[ids]
         class_ids = class_ids[ids]
         confs = confs[ids]
