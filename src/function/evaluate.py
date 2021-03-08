@@ -44,7 +44,6 @@ class Evaluate:
 
                 for output, gt, mask in zip(outputs, gts, masks):
                     metric_fn.stack(pred=output, gt=gt[mask == 1])
-
         result = metric_fn.value(
             correct_thresholds=correct_thresholds,
             recall_thresholds=recall_thresholds,
@@ -88,8 +87,8 @@ class MeanAveragePrecision:
         class_ids = class_ids[ids]
 
         # void
-        void_id = torch.where((gt[:, 5:] == 1).any(dim=1))[0]
-        non_void_id = torch.where((gt[:, 5:] == 0).all(dim=1))[0]
+        void_id = torch.where(gt[:, 5] == 1)[0]
+        non_void_id = torch.where(gt[:, 5] == 0)[0]
         count = gt_class_ids[non_void_id]
 
         # assign bboxes
