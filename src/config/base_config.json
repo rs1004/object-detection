@@ -10,12 +10,8 @@
     },
     "train": {
         "lr": 0.0001,
-        "momentum": 0.9,
         "decay": 0.0005,
-        "steps": [
-            100,
-            200
-        ],
+        "no_change_limit": 100,
         "gamma": 0.9,
         "epochs": 100,
         "coefs": [
@@ -28,6 +24,7 @@
     "inference": {
         "font_name": "Gargi.ttf",
         "font_size": 15,
+        "draw_gt_box": true,
         "num_output": 10,
         "conf_thresh": 0.3,
         "nms_thresh": 0.6

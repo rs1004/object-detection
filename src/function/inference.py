@@ -24,7 +24,7 @@ class Inference:
 
         count = 0
         with torch.no_grad():
-            for images, _, _ in tqdm(self.dataloader, total=len(self.dataloader)):
+            for images, gts, masks in tqdm(self.dataloader, total=len(self.dataloader)):
                 # to GPU device
                 images = images.to(device)
 
@@ -36,8 +36,8 @@ class Inference:
                 outputs = outputs.to('cpu')
 
                 saved = []
-                for i, image, output in zip(range(count, len(images) + count), images, outputs):
-                    saved.append(self._draw_and_save(i, image, output, colors, save_dir))
+                for i, image, output, gt, mask in zip(range(count, len(images) + count), images, outputs, gts, masks):
+                    saved.append(self._draw_and_save(i, image, output, gt[mask == 1], colors, save_dir, self.draw_gt_box))
 
                 count += sum(saved)
 
@@ -46,7 +46,7 @@ class Inference:
 
         print('Finished Inference')
 
-    def _draw_and_save(self, i, image, output, colors, save_dir):
+    def _draw_and_save(self, i, image, output, gt, colors, save_dir, draw_gt_box=False):
         image = Image.fromarray((image.permute(1, 2, 0).numpy() * 255).astype('uint8'))
 
         output = output[output[:, 4].sort(descending=True).indices]
@@ -67,7 +67,21 @@ class Inference:
 
         # draw & save
         draw = ImageDraw.Draw(image)
-        font = ImageFont.truetype(self.font_name, self.font_size)
+
+        if draw_gt_box:
+            gt_color = (255, 255, 255)
+            space = 20
+            for gt_box in gt[:, :4]:
+                xmin, ymin, xmax, ymax = gt_box.data.numpy() * 32
+                for x in range(int(xmin), int(xmax) + 1, space):
+                    draw.line((x, ymin, x + 5, ymin), fill=gt_color)
+                    draw.line((x, ymax, x + 5, ymax), fill=gt_color)
+
+                for y in range(int(ymin), int(ymax) + 1, space):
+                    draw.line((xmin, y, xmin, y + 5), fill=gt_color)
+                    draw.line((xmax, y, xmax, y + 5), fill=gt_color)
+
+        font = ImageFont.truetype((Path(__file__).parent / self.font_name).as_posix(), self.font_size)
         for box, conf, class_id in zip(boxes, confs, class_ids):
             xmin, ymin, xmax, ymax = box.data.numpy() * 32
             color = colors[class_id.data]

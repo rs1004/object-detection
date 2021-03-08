@@ -13,13 +13,14 @@ class Train:
         self.__dict__.update(cfg)
 
     def run(self):
-        optimizer = opt.SGD(self.model.parameters(), lr=self.lr, momentum=self.momentum, weight_decay=self.decay)
-        scheduler = opt.lr_scheduler.MultiStepLR(optimizer=optimizer, milestones=self.steps, gamma=self.gamma)
+        optimizer = opt.Adam(self.model.parameters(), lr=self.lr, weight_decay=self.decay)
+        scheduler = opt.lr_scheduler.StepLR(optimizer=optimizer, step_size=1, gamma=self.gamma)
 
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
 
         min_loss = 99999
+        renew_epoch = 0
         torch.autograd.set_detect_anomaly(True)
         with SummaryWriter(log_dir=Path(self.log_dir)) as writer:
             for epoch in range(self.last_epoch + 1, self.last_epoch + self.epochs + 1):
@@ -57,8 +58,12 @@ class Train:
                     save_path = weights_dir / f'{self.key}-{epoch:05}.pt'
                     torch.save(self.model.state_dict(), save_path)
                     min_loss = running_loss
+                    renew_epoch = epoch
 
-                scheduler.step()
+                if epoch - renew_epoch > self.no_change_limit:
+                    scheduler.step()
+                    renew_epoch = epoch
+
                 writer.add_scalar('loss', running_loss, epoch)
                 writer.add_scalar('loss/localization', running_loss_loc, epoch)
                 writer.add_scalar('loss/object', running_loss_obj, epoch)
