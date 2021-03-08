@@ -50,7 +50,7 @@ if __name__ == '__main__':
             key=args.key,
             size=cfg['input_size']
         )
-        model.load_state_dict(torch.load(weights_path))
+        model.load_state_dict(torch.load(weights_path, map_location=torch.device('cpu')))
     else:
         raise NotImplementedError(f'{args.key} is not expected')
 

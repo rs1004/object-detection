@@ -17,7 +17,7 @@ class Inference:
         colors = [tuple([int(i * 255) for i in c]) for c in sns.color_palette('hls', n_colors=len(self.dataloader.dataset.labels))]
         save_dir = Path(self.result_dir) / 'inference'
         save_dir.mkdir(exist_ok=True, parents=True)
-        num_output = min(self.num_output, len(self.dataloader))
+        num_output = min(self.num_output, len(self.dataloader) * self.batch_size)
 
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         self.model.to(device)
