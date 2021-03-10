@@ -1,12 +1,12 @@
 {
     "common": {
-        "root_dir": "/home/sato/work/yolo",
+        "root_dir": "/home/sato/work/object-detection-pytorch",
         "data_dir": "data",
         "weights_dir": "assets/weights",
         "log_dir": "logs",
         "result_dir": "result",
         "input_size": 416,
-        "batch_size": 4
+        "batch_size": 32
     },
     "train": {
         "lr": 0.0001,

@@ -32,8 +32,8 @@ if __name__ == '__main__':
 
     cfg['data_dir'] = Path(cfg['root_dir']) / cfg['data_dir']
     cfg['weights_dir'] = Path(cfg['root_dir']) / cfg['weights_dir']
-    cfg['log_dir'] = Path(cfg['root_dir']) / cfg['log_dir'] / args.key
-    cfg['result_dir'] = Path(cfg['root_dir']) / cfg['result_dir'] / args.key
+    cfg['log_dir'] = Path(cfg['root_dir']) / cfg['log_dir'] / f"{args.key}-{cfg['input_size']}"
+    cfg['result_dir'] = Path(cfg['root_dir']) / cfg['result_dir'] / f"{args.key}-{cfg['input_size']}"
 
     # prepare
     dataloader = DataLoader(
