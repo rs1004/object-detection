@@ -55,6 +55,8 @@ def collate_yolov2(batch, anchors, input_size):
         mask = torch.zeros((grid_h * grid_w * len(anchors)))
 
         if len(anno) > 0:
+            anno[:, 0:4] = anno[:, 0:4] / input_size
+
             cx, cy = torch.meshgrid(torch.arange(0.5, grid_w), torch.arange(0.5, grid_h))
             cx = cx.t().contiguous().view(-1, 1)  # transpose because anchors to be organized in H x W order
             cy = cy.t().contiguous().view(-1, 1)
@@ -65,9 +67,11 @@ def collate_yolov2(batch, anchors, input_size):
                 centers.view(-1, 1, 2).expand(-1, len(anchors), 2),
                 anchors.view(1, -1, 2).expand(grid_h * grid_w, -1, 2)
             ], dim=2).view(-1, 4)
-            all_anchors = box_convert(all_anchors, in_fmt='cxcywh', out_fmt='xyxy') * 32
+            all_anchors = box_convert(all_anchors, in_fmt='cxcywh', out_fmt='xyxy')
+            all_anchors[:, [0, 2]] = all_anchors[:, [0, 2]] / grid_w
+            all_anchors[:, [1, 3]] = all_anchors[:, [1, 3]] / grid_h
 
-            indices = box_iou(anno[:, :4], all_anchors).max(dim=1).indices
+            indices = box_iou(anno[:, 0:4], all_anchors).max(dim=1).indices
             gt[indices] = anno
             mask[indices] = 1.
 
@@ -84,7 +88,7 @@ def collate_yolov2(batch, anchors, input_size):
 
 if __name__ == '__main__':
     cfg = {
-        'data_dir': '/home/sato/work/yolo/data/mask_wearing',
+        'data_dir': '/home/sato/work/yolo/data/maskw',
         'input_size': 416,
         'batch_size': 1,
         'anchors': [
@@ -101,4 +105,5 @@ if __name__ == '__main__':
         print(image.shape)
         print(gt.shape)
         print(mask.shape)
+        print(gt[mask == 1])
         break

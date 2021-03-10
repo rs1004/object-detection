@@ -72,12 +72,18 @@ class MeanAveragePrecision:
         self.interm = []
         self.count = []
 
-    def stack(self, pred, gt):
-        boxes = pred[:, :4]
+    def stack(self, pred: torch.Tensor, gt: torch.Tensor):
+        """stack prediction and ground truth
+
+        Args:
+            pred (torch.Tensor): [n, coord + 1 + num_classes] (coord: xyxy, normalized)
+            gt (torch.Tensor): [m, coord + class_id + 1] (coord: xyxy, normalized)
+        """
+        boxes = pred[:, 0:4]
         class_ids = pred[:, 5:].max(dim=-1).indices
         confs = pred[:, 4]
 
-        gt_boxes = gt[:, :4]
+        gt_boxes = gt[:, 0:4]
         gt_class_ids = gt[:, 4]
 
         # leave valid bboxes

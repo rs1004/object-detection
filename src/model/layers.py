@@ -82,8 +82,11 @@ class Region(nn.Module):
         x[:, :, 2:4] = x[:, :, 2:4] * all_anchors[:, 2:4]
 
         x = torch.cat([
-            box_convert(x[:, :, :4] * 32, in_fmt='cxcywh', out_fmt='xyxy'),
+            box_convert(x[:, :, 0:4], in_fmt='cxcywh', out_fmt='xyxy'),
             x[:, :, 4:]
         ], dim=-1)
+
+        x[:, :, [0, 2]] = x[:, :, [0, 2]] / w
+        x[:, :, [1, 3]] = x[:, :, [1, 3]] / h
 
         return x

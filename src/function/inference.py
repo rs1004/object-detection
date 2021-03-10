@@ -2,7 +2,7 @@ import torch
 import seaborn as sns
 from torchvision.ops import nms
 from PIL import Image, ImageFont, ImageDraw
-from pathlib import Path
+from pathlib import Path, PosixPath
 from tqdm import tqdm
 
 
@@ -35,6 +35,9 @@ class Inference:
                 images = images.to('cpu')
                 outputs = outputs.to('cpu')
 
+                outputs[:, :, 0:4] = outputs[:, :, 0:4] * self.input_size
+                gts[:, :, 0:4] = gts[:, :, 0:4] * self.input_size
+
                 saved = []
                 for i, image, output, gt, mask in zip(range(count, len(images) + count), images, outputs, gts, masks):
                     saved.append(self._draw_and_save(i, image, output, gt[mask == 1], colors, save_dir, self.draw_gt_box))
@@ -46,12 +49,27 @@ class Inference:
 
         print('Finished Inference')
 
-    def _draw_and_save(self, i, image, output, gt, colors, save_dir, draw_gt_box=False):
+    def _draw_and_save(self, i: int, image: torch.Tensor, output: torch.Tensor,
+                       gt: torch.Tensor, colors: list, save_dir: PosixPath, draw_gt_box: bool = False) -> int:
+        """ draw bbox on image and save image
+
+        Args:
+            i (int): image number to save
+            image (torch.Tensor): image tensor
+            output (torch.Tensor): [n, coord + 1 + num_classes] (coord: xyxy, normalized)
+            gt (torch.Tensor): [m, coord + class_id + 1] (coord: xyxy, normalized)
+            colors (list): RGB tuple list
+            save_dir (PosixPath): image save directory
+            draw_gt_box (bool, optional): if True, gt bbox will be drawn. Defaults to False.
+
+        Returns:
+            int: 1 (no special meaning)
+        """
         image = Image.fromarray((image.permute(1, 2, 0).numpy() * 255).astype('uint8'))
 
         output = output[output[:, 4].sort(descending=True).indices]
 
-        boxes = output[:, :4]
+        boxes = output[:, 0:4]
         class_ids = output[:, 5:].max(dim=-1).indices
         confs = output[:, 4]
 
@@ -71,7 +89,7 @@ class Inference:
         if draw_gt_box:
             gt_color = (255, 255, 255)
             space = 20
-            for gt_box in gt[:, :4]:
+            for gt_box in gt[:, 0:4]:
                 xmin, ymin, xmax, ymax = gt_box.data.numpy()
                 for x in range(int(xmin), int(xmax) + 1, space):
                     draw.line((x, ymin, x + 5, ymin), fill=gt_color)
