@@ -43,8 +43,8 @@ if __name__ == '__main__':
     )
 
     if 'yolov2' in args.key:
-        cfg['anchors'] = torch.as_tensor(cfg['anchors']) * cfg['input_size'] / 32
-        model = YoloV2(anchors=cfg['anchors'], num_classes=len(dataloader.dataset.labels))
+        anchors = torch.as_tensor(cfg['anchors']) * cfg['input_size'] / 32
+        model = YoloV2(anchors=anchors, num_classes=len(dataloader.dataset.labels))
         weights_path = get_weights_path(
             weights_dir=cfg['weights_dir'],
             key=args.key,

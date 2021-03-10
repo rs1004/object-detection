@@ -55,7 +55,6 @@ def collate_yolov2(batch, anchors, input_size):
         mask = torch.zeros((grid_h * grid_w * len(anchors)))
 
         if len(anno) > 0:
-            anno[:, :4] /= 32
             cx, cy = torch.meshgrid(torch.arange(0.5, grid_w), torch.arange(0.5, grid_h))
             cx = cx.t().contiguous().view(-1, 1)  # transpose because anchors to be organized in H x W order
             cy = cy.t().contiguous().view(-1, 1)
@@ -66,7 +65,7 @@ def collate_yolov2(batch, anchors, input_size):
                 centers.view(-1, 1, 2).expand(-1, len(anchors), 2),
                 anchors.view(1, -1, 2).expand(grid_h * grid_w, -1, 2)
             ], dim=2).view(-1, 4)
-            all_anchors = box_convert(all_anchors, in_fmt='cxcywh', out_fmt='xyxy')
+            all_anchors = box_convert(all_anchors, in_fmt='cxcywh', out_fmt='xyxy') * 32
 
             indices = box_iou(anno[:, :4], all_anchors).max(dim=1).indices
             gt[indices] = anno

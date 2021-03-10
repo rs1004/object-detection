@@ -10,6 +10,7 @@
     },
     "train": {
         "lr": 0.0001,
+        "momentum": 0.9,
         "decay": 0.0005,
         "no_change_limit": 100,
         "gamma": 0.9,
@@ -24,7 +25,7 @@
     "inference": {
         "font_name": "Gargi.ttf",
         "font_size": 15,
-        "draw_gt_box": false,
+        "draw_gt_box": true,
         "num_output": 100,
         "conf_thresh": 0.6,
         "nms_thresh": 0.6

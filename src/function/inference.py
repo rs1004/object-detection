@@ -72,7 +72,7 @@ class Inference:
             gt_color = (255, 255, 255)
             space = 20
             for gt_box in gt[:, :4]:
-                xmin, ymin, xmax, ymax = gt_box.data.numpy() * 32
+                xmin, ymin, xmax, ymax = gt_box.data.numpy()
                 for x in range(int(xmin), int(xmax) + 1, space):
                     draw.line((x, ymin, x + 5, ymin), fill=gt_color)
                     draw.line((x, ymax, x + 5, ymax), fill=gt_color)
@@ -83,7 +83,7 @@ class Inference:
 
         font = ImageFont.truetype((Path(__file__).parent / self.font_name).as_posix(), self.font_size)
         for box, conf, class_id in zip(boxes, confs, class_ids):
-            xmin, ymin, xmax, ymax = box.data.numpy() * 32
+            xmin, ymin, xmax, ymax = box.data.numpy()
             color = colors[class_id.data]
             text = f'{self.dataloader.dataset.labels[class_id.data]}: {round(float(conf.data), 3)}'
 
