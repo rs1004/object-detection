@@ -70,6 +70,8 @@ class Region(nn.Module):
 
         centers = torch.cat([cx, cy], axis=1).float()
         anchors = torch.as_tensor(self.anchors)
+        anchors[:, 0] = anchors[:, 0] * w
+        anchors[:, 0] = anchors[:, 1] * h
 
         all_anchors = torch.cat([
             centers.view(-1, 1, 2).expand(-1, len(self.anchors), 2),
@@ -78,8 +80,7 @@ class Region(nn.Module):
 
         all_anchors = all_anchors.to(x.device)
 
-        x[:, :, 0] = (x[:, :, 0] + all_anchors[:, 0]) / w
-        x[:, :, 1] = (x[:, :, 1] + all_anchors[:, 1]) / h
+        x[:, :, 0:2] = x[:, :, 0:2] + all_anchors[:, 0:2]
         x[:, :, 2:4] = x[:, :, 2:4] * all_anchors[:, 2:4]
 
         x = torch.cat([

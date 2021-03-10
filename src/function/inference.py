@@ -35,8 +35,8 @@ class Inference:
                 images = images.to('cpu')
                 outputs = outputs.to('cpu')
 
-                outputs[:, :, 0:4] = outputs[:, :, 0:4] * self.input_size
-                gts[:, :, 0:4] = gts[:, :, 0:4] * self.input_size
+                outputs[:, :, 0:4] = outputs[:, :, 0:4] * self.restore_scale
+                gts[:, :, 0:4] = gts[:, :, 0:4] * self.restore_scale
 
                 saved = []
                 for i, image, output, gt, mask in zip(range(count, len(images) + count), images, outputs, gts, masks):

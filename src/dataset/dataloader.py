@@ -27,8 +27,7 @@ class DataLoader(DL):
             transforms=tfs
         )
         if model_name == 'yolov2':
-            anchors = torch.tensor(self.anchors)
-            collate_fn = partial(collate_yolov2, anchors=anchors, input_size=self.input_size)
+            collate_fn = partial(collate_yolov2, anchors=self.anchors, input_size=self.input_size)
 
         else:
             raise NotImplementedError(f'{self.key} is not expected')
@@ -45,6 +44,7 @@ class DataLoader(DL):
 def collate_yolov2(batch, anchors, input_size):
     grid_h = input_size // 32
     grid_w = input_size // 32
+    anchors = torch.as_tensor(anchors) * input_size / 32
 
     images = []
     gts = []
@@ -54,9 +54,9 @@ def collate_yolov2(batch, anchors, input_size):
         mask = torch.zeros((grid_h * grid_w * len(anchors)))
 
         if len(anno) > 0:
-            anno[:, 0:4] = anno[:, 0:4] / input_size
+            anno[:, 0:4] = anno[:, 0:4] / 32
 
-            cx, cy = torch.meshgrid(torch.arange(0.5, grid_w) / grid_w, torch.arange(0.5, grid_h) / grid_h)
+            cx, cy = torch.meshgrid(torch.arange(0.5, grid_w), torch.arange(0.5, grid_h))
             cx = cx.t().contiguous().view(-1, 1)  # transpose because anchors to be organized in H x W order
             cy = cy.t().contiguous().view(-1, 1)
 
