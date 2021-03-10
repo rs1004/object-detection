@@ -45,7 +45,6 @@ class DataLoader(DL):
 def collate_yolov2(batch, anchors, input_size):
     grid_h = input_size // 32
     grid_w = input_size // 32
-    anchors *= input_size / 32
 
     images = []
     gts = []
@@ -57,19 +56,17 @@ def collate_yolov2(batch, anchors, input_size):
         if len(anno) > 0:
             anno[:, 0:4] = anno[:, 0:4] / input_size
 
-            cx, cy = torch.meshgrid(torch.arange(0.5, grid_w), torch.arange(0.5, grid_h))
+            cx, cy = torch.meshgrid(torch.arange(0.5, grid_w) / grid_w, torch.arange(0.5, grid_h) / grid_h)
             cx = cx.t().contiguous().view(-1, 1)  # transpose because anchors to be organized in H x W order
             cy = cy.t().contiguous().view(-1, 1)
 
-            centers = torch.cat([cx, cy], dim=1).float()
+            centers = torch.cat([cx, cy], dim=1)
 
             all_anchors = torch.cat([
                 centers.view(-1, 1, 2).expand(-1, len(anchors), 2),
                 anchors.view(1, -1, 2).expand(grid_h * grid_w, -1, 2)
             ], dim=2).view(-1, 4)
             all_anchors = box_convert(all_anchors, in_fmt='cxcywh', out_fmt='xyxy')
-            all_anchors[:, [0, 2]] = all_anchors[:, [0, 2]] / grid_w
-            all_anchors[:, [1, 3]] = all_anchors[:, [1, 3]] / grid_h
 
             indices = box_iou(anno[:, 0:4], all_anchors).max(dim=1).indices
             gt[indices] = anno
