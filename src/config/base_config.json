@@ -10,7 +10,6 @@
     },
     "train": {
         "lr": 0.0001,
-        "momentum": 0.9,
         "decay": 0.0005,
         "no_change_limit": 100,
         "gamma": 0.5,

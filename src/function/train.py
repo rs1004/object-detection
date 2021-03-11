@@ -13,7 +13,7 @@ class Train:
         self.__dict__.update(cfg)
 
     def run(self):
-        optimizer = opt.SGD(self.model.parameters(), lr=self.lr, momentum=self.momentum, weight_decay=self.decay)
+        optimizer = opt.Adam(self.model.parameters(), lr=self.lr, weight_decay=self.decay)
         scheduler = opt.lr_scheduler.StepLR(optimizer=optimizer, step_size=1, gamma=self.gamma)
 
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
