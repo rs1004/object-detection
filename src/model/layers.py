@@ -71,7 +71,7 @@ class Region(nn.Module):
         centers = torch.cat([cx, cy], axis=1).float()
         anchors = torch.as_tensor(self.anchors)
         anchors[:, 0] = anchors[:, 0] * w
-        anchors[:, 0] = anchors[:, 1] * h
+        anchors[:, 1] = anchors[:, 1] * h
 
         all_anchors = torch.cat([
             centers.view(-1, 1, 2).expand(-1, len(self.anchors), 2),

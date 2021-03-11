@@ -44,6 +44,7 @@ class Evaluate:
 
                 for output, gt, mask in zip(outputs, gts, masks):
                     metric_fn.stack(pred=output, gt=gt[mask == 1])
+
         result = metric_fn.value(
             correct_thresholds=correct_thresholds,
             recall_thresholds=recall_thresholds,

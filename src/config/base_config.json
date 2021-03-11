@@ -13,8 +13,8 @@
         "momentum": 0.9,
         "decay": 0.0005,
         "no_change_limit": 100,
-        "gamma": 0.9,
-        "epochs": 100,
+        "gamma": 0.5,
+        "epochs": 3000,
         "coefs": [
             1,
             5,
