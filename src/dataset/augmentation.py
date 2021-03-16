@@ -37,7 +37,7 @@ class ToTensor(TT):
 
 
 class RandomColorJitter(CJ):
-    def __init__(self, p: float = 0.5, brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5):
+    def __init__(self, p: float = 0.5, brightness=0.3, contrast=0.3, saturation=1.5, hue=0.1):
         super(RandomColorJitter, self).__init__(brightness, contrast, saturation, hue)
         self.p = p
 
