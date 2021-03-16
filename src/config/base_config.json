@@ -24,7 +24,7 @@
     "inference": {
         "font_name": "Gargi.ttf",
         "font_size": 15,
-        "draw_gt_box": true,
+        "draw_gt_box": false,
         "restore_scale": 32,
         "num_output": 100,
         "conf_thresh": 0.6,
