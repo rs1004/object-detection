@@ -49,31 +49,31 @@ no-mask はデータが少ないこともあり、推論に失敗することが
 
 ## 実行方法
 1. 環境構築
-* 学習は Google Colab で実施した。
-* それ以外でスクリプトを動作する場合は、リポジトリ直下で
-    ```
-    pip install -e .
-    ```
-    とすれば必要なライブラリが import できる。
+    * 学習は Google Colab で実施した。
+    * それ以外でスクリプトを動作する場合は、リポジトリ直下で
+        ```
+        pip install -e .
+        ```
+        とすれば必要なライブラリが import できる。
 
 1. 学習
-学習・評価・推論は src/process.py で行う。学習は以下で実行
-```
-python src/process.py train {キー}
-```
-キーは重みファイルを参照
+    学習・評価・推論は src/process.py で行う。学習は以下で実行
+    ```
+    python src/process.py train {キー}
+    ```
+    キーは重みファイルを参照
 
 1. 推論
-以下で実行
-```
-python src/process.py inference {キー}
-```
-キーは重みファイルを参照
+    以下で実行
+    ```
+    python src/process.py inference {キー}
+    ```
+    キーは重みファイルを参照
 
 1. 評価
-以下で実行
-```
-python src/process.py evaluate {キー}
-```
-キーは重みファイルを参照
+    以下で実行
+    ```
+    python src/process.py evaluate {キー}
+    ```
+    キーは重みファイルを参照
 
