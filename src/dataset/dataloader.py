@@ -1,6 +1,6 @@
 import os
 import torch
-import torchvision.transforms as transforms
+import dataset.augmentation as A
 from torch.utils.data import DataLoader as DL
 from functools import partial
 from pathlib import Path
@@ -14,12 +14,16 @@ class DataLoader(DL):
 
         if is_train:
             data_dir = Path(self.data_dir) / 'train'
-            tfs = transforms.Compose([
-                transforms.ToTensor()])
+            tfs = A.Compose([
+                A.RandomColorJitter(p=0.5),
+                A.RandomFlip(input_size=self.input_size, p=0.5),
+                A.ToTensor()
+            ])
         else:
             data_dir = Path(self.data_dir) / 'validation'
-            tfs = transforms.Compose([
-                transforms.ToTensor()])
+            tfs = A.Compose([
+                A.ToTensor()
+            ])
 
         self.dataset = ImageAnnotationSet(
             data_dir=data_dir,

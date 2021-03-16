@@ -60,7 +60,7 @@ class ImageAnnotationSet(Dataset):
 
         # transforms
         if self.transforms is not None:
-            image = self.transforms(image)
+            image, annotation = self.transforms(image, annotation)
 
         return image, annotation
 
